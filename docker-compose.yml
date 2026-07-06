@@ -1,0 +1,25 @@
+services:
+  web-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    profiles: ["dev"]
+    ports:
+      - "5173:5173"
+    environment:
+      - API_PROXY_TARGET=${API_PROXY_TARGET:-http://localhost:8000}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["prod"]
+    ports:
+      - "8080:80"
+    environment:
+      - API_PROXY_TARGET=${API_PROXY_TARGET:-http://localhost:8000}
