@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch, configureApiAuth } from "@/lib/api";
 import { decodeJwt, isExpired } from "@/lib/jwt";
 
 export interface AuthUser {
@@ -77,7 +77,7 @@ export function selectIsAuthenticated(state: AuthStore): boolean {
   return claims !== null && !isExpired(claims);
 }
 
-export function authHeaders(): Record<string, string> {
-  const token = useAuthStore.getState().token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
+configureApiAuth({
+  getToken: () => useAuthStore.getState().token,
+  onUnauthorized: () => useAuthStore.setState({ token: null, user: null }),
+});

@@ -1,6 +1,5 @@
 import { apiFetch } from "@/lib/api";
 import { toApiPayload } from "@/lib/api-mapper";
-import { authHeaders } from "@/store/auth-store";
 import type {
   CrawlDetail,
   CrawlSettings,
@@ -29,11 +28,11 @@ export function listCrawls(params: ListCrawlsParams = {}): Promise<PaginatedResp
   if (params.q) qs.set("q", params.q);
   qs.set("limit", String(params.limit ?? 20));
   qs.set("offset", String(params.offset ?? 0));
-  return apiFetch(`/api/v1/crawls?${qs.toString()}`, { headers: authHeaders() });
+  return apiFetch(`/api/v1/crawls?${qs.toString()}`);
 }
 
 export function getCrawl(id: string): Promise<CrawlDetail> {
-  return apiFetch(`/api/v1/crawls/${id}`, { headers: authHeaders() });
+  return apiFetch(`/api/v1/crawls/${id}`);
 }
 
 export function listDiscoveredUrls(
@@ -43,29 +42,28 @@ export function listDiscoveredUrls(
   const qs = new URLSearchParams();
   qs.set("limit", String(params.limit ?? 50));
   qs.set("offset", String(params.offset ?? 0));
-  return apiFetch(`/api/v1/crawls/${id}/discovered?${qs.toString()}`, { headers: authHeaders() });
+  return apiFetch(`/api/v1/crawls/${id}/discovered?${qs.toString()}`);
 }
 
 export function listCrawlLogs(id: string, params: PageParams = {}): Promise<PaginatedResponse<LogLine>> {
   const qs = new URLSearchParams();
   qs.set("limit", String(params.limit ?? 50));
   qs.set("offset", String(params.offset ?? 0));
-  return apiFetch(`/api/v1/crawls/${id}/logs?${qs.toString()}`, { headers: authHeaders() });
+  return apiFetch(`/api/v1/crawls/${id}/logs?${qs.toString()}`);
 }
 
 export function cancelCrawl(id: string): Promise<CrawlSummary> {
-  return apiFetch(`/api/v1/crawls/${id}/cancel`, { method: "POST", headers: authHeaders() });
+  return apiFetch(`/api/v1/crawls/${id}/cancel`, { method: "POST" });
 }
 
 export function deleteCrawl(id: string): Promise<void> {
-  return apiFetch(`/api/v1/crawls/${id}`, { method: "DELETE", headers: authHeaders() });
+  return apiFetch(`/api/v1/crawls/${id}`, { method: "DELETE" });
 }
 
 export function createCrawlFromPayload(payload: unknown): Promise<CrawlSummary> {
   return apiFetch("/api/v1/crawls", {
     method: "POST",
     body: JSON.stringify(payload),
-    headers: authHeaders(),
   });
 }
 
@@ -74,7 +72,7 @@ export function createCrawl(targetUrl: string, settings: CrawlSettings): Promise
 }
 
 export function getDashboardOverview(): Promise<DashboardOverview> {
-  return apiFetch("/api/v1/dashboard/overview", { headers: authHeaders() });
+  return apiFetch("/api/v1/dashboard/overview");
 }
 
 export interface ListDataParams extends PageParams {
@@ -90,9 +88,9 @@ export function listData(params: ListDataParams = {}): Promise<PaginatedResponse
   if (params.q) qs.set("q", params.q);
   qs.set("limit", String(params.limit ?? 50));
   qs.set("offset", String(params.offset ?? 0));
-  return apiFetch(`/api/v1/data?${qs.toString()}`, { headers: authHeaders() });
+  return apiFetch(`/api/v1/data?${qs.toString()}`);
 }
 
 export function getDataItem(id: string): Promise<DataItemDetail> {
-  return apiFetch(`/api/v1/data/${id}`, { headers: authHeaders() });
+  return apiFetch(`/api/v1/data/${id}`);
 }
