@@ -25,25 +25,36 @@ export function usePolledResource<T>(
   const [error, setError] = useState<string | null>(null);
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
+  // Bumped whenever the resource changes (deps change / unmount) so a slow, superseded
+  // request can't overwrite state with stale data after a newer request has resolved.
+  const requestIdRef = useRef(0);
 
   const load = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     try {
       const result = await fetcherRef.current();
+      if (requestId !== requestIdRef.current) return;
       setData(result);
       setError(null);
     } catch (err) {
+      if (requestId !== requestIdRef.current) return;
       setError(err instanceof ApiError ? err.message : "Failed to load data.");
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    setData(null);
+    setError(null);
     setLoading(true);
     load();
     if (!intervalMs) return;
     const id = setInterval(load, intervalMs);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      requestIdRef.current += 1;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
