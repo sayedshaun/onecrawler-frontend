@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/crawl-form/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError } from "@/lib/api";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -82,9 +83,8 @@ export default function SignupPage() {
         </Field>
 
         <Field label="Password" htmlFor="password" description="At least 8 characters.">
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             required
             value={password}
@@ -94,9 +94,8 @@ export default function SignupPage() {
         </Field>
 
         <Field label="Confirm password" htmlFor="confirm-password">
-          <Input
+          <PasswordInput
             id="confirm-password"
-            type="password"
             autoComplete="new-password"
             required
             value={confirmPassword}
