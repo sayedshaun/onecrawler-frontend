@@ -189,5 +189,7 @@ export interface DataItem {
 }
 
 export interface DataItemDetail extends DataItem {
-  content: string;
+  // Always a JSON object — heuristic/genai extraction produce structured fields;
+  // plain-text scrapes (markdown/xml) are wrapped as { text: "..." } server-side.
+  content: Record<string, unknown>;
 }

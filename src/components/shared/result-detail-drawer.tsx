@@ -258,35 +258,34 @@ function StructuredDataView({ data }: { data: Record<string, unknown> }) {
 }
 
 function ContentBody({ detail }: { detail: DataItemDetail }) {
-  if (!detail.content) {
+  const content = detail.content;
+  if (!content || Object.keys(content).length === 0) {
     return <p className="text-sm text-muted-foreground">This result has no content.</p>;
+  }
+
+  // JSON-mode scrapes store the full extracted field set as `content` — show it structured.
+  if (detail.format === "json") {
+    return <StructuredDataView data={content} />;
+  }
+
+  // markdown/xml/xmltei scrapes store their raw text under `text` (or `raw_text`).
+  const text = typeof content.text === "string" ? content.text : typeof content.raw_text === "string" ? content.raw_text : null;
+
+  if (text === null) {
+    return <StructuredDataView data={content} />;
   }
 
   if (detail.format === "markdown") {
     return (
       <div className="rounded-lg border border-border bg-card/50 p-5">
         <div className="prose prose-sm max-w-none sm:prose-base">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{detail.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
         </div>
       </div>
     );
   }
 
-  if (detail.format === "json") {
-    try {
-      const parsed = JSON.parse(detail.content);
-      if (isPlainObject(parsed)) {
-        return <StructuredDataView data={parsed} />;
-      }
-      if (Array.isArray(parsed)) {
-        return <FieldValue value={parsed} />;
-      }
-    } catch {
-      // not valid JSON — fall through to raw view below
-    }
-  }
-
-  return <RawContentBlock content={detail.content} />;
+  return <RawContentBlock content={text} />;
 }
 
 function RawContentBlock({ content }: { content: string }) {
