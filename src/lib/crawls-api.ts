@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api";
-import { toApiPayload } from "@/lib/api-mapper";
+import { buildSettingsPayload, toApiPayload } from "@/lib/api-mapper";
 import type {
   CrawlDetail,
   CrawlSettings,
@@ -54,6 +54,18 @@ export function listCrawlLogs(id: string, params: PageParams = {}): Promise<Pagi
 
 export function cancelCrawl(id: string): Promise<CrawlSummary> {
   return apiFetch(`/api/v1/crawls/${id}/cancel`, { method: "POST" });
+}
+
+export function scrapeDiscovered(jobId: string, settings: CrawlSettings): Promise<CrawlSummary> {
+  const { settings: settingsPayload } = buildSettingsPayload(settings);
+  return apiFetch(`/api/v1/crawls/${jobId}/scrape`, {
+    method: "POST",
+    body: JSON.stringify({ settings: settingsPayload }),
+  });
+}
+
+export function deleteDiscoveredUrl(jobId: string, discoveredId: string): Promise<void> {
+  return apiFetch(`/api/v1/crawls/${jobId}/discovered/${discoveredId}`, { method: "DELETE" });
 }
 
 export function deleteCrawl(id: string): Promise<void> {
