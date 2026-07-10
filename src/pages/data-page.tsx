@@ -99,47 +99,72 @@ export default function DataPage() {
             />
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Source Crawl</TableHead>
-                    <TableHead>Format</TableHead>
-                    <TableHead className="text-right">Words</TableHead>
-                    <TableHead>Extracted</TableHead>
-                    <TableHead className="w-10" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        <p className="font-medium text-foreground">{truncate(item.title || "(untitled)", 60)}</p>
-                        <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{item.url}</p>
-                      </TableCell>
-                      <TableCell className="max-w-48 truncate text-xs text-muted-foreground">
-                        {item.targetUrl}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="uppercase">
-                          {item.format}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums text-muted-foreground">
-                        {item.wordCount.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {formatRelativeTime(new Date(item.extractedAt))}
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelected(item)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+              {/* Below sm: a 6-column table can't fit this much data without
+                  cropping or blind horizontal scrolling — stack cards instead. */}
+              <div className="space-y-2 sm:hidden">
+                {items.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelected(item)}
+                    className="block w-full rounded-lg border border-border p-3 text-left transition-colors hover:bg-accent/50"
+                  >
+                    <p className="truncate font-medium text-foreground">{truncate(item.title || "(untitled)", 40)}</p>
+                    <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{item.url}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <Badge variant="secondary" className="uppercase">
+                        {item.format}
+                      </Badge>
+                      <span>{item.wordCount.toLocaleString()} words</span>
+                      <span>{formatRelativeTime(new Date(item.extractedAt))}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead className="hidden lg:table-cell">Source Crawl</TableHead>
+                      <TableHead>Format</TableHead>
+                      <TableHead className="text-right">Words</TableHead>
+                      <TableHead className="hidden md:table-cell">Extracted</TableHead>
+                      <TableHead className="w-10" />
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <p className="font-medium text-foreground">{truncate(item.title || "(untitled)", 60)}</p>
+                          <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{item.url}</p>
+                        </TableCell>
+                        <TableCell className="hidden max-w-48 truncate text-xs text-muted-foreground lg:table-cell">
+                          {item.targetUrl}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="uppercase">
+                            {item.format}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums text-muted-foreground">
+                          {item.wordCount.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
+                          {formatRelativeTime(new Date(item.extractedAt))}
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelected(item)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
               <Pagination page={page} pageSize={PAGE_SIZE} total={total} onPageChange={setPage} />
             </>
