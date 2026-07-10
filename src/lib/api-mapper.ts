@@ -12,7 +12,10 @@ function parseListField(value: string): string[] | undefined {
   return items.length ? items : undefined;
 }
 
-export function toApiPayload(targetUrl: string, settings: CrawlSettings) {
+export function buildSettingsPayload(settings: CrawlSettings): {
+  settings: Record<string, unknown>;
+  filters: Record<string, unknown> | null;
+} {
   const filters = settings.filterGroup.filters.map((f) => {
     switch (f.kind) {
       case "by_date":
@@ -33,8 +36,6 @@ export function toApiPayload(targetUrl: string, settings: CrawlSettings) {
   });
 
   return {
-    target_url: targetUrl,
-    mode: settings.mode,
     settings: {
       link_extraction_strategy: settings.linkExtractionStrategy,
       link_extraction_limit: settings.linkExtractionLimit,
@@ -49,6 +50,7 @@ export function toApiPayload(targetUrl: string, settings: CrawlSettings) {
             model_name: settings.genai.modelName,
             api_key: settings.genai.apiKey || undefined,
             base_url: settings.genai.baseUrl || undefined,
+            timeout: settings.genai.timeout,
             output_schema: Object.fromEntries(
               settings.genai.schemaFields
                 .filter((f) => f.name)
@@ -87,5 +89,15 @@ export function toApiPayload(targetUrl: string, settings: CrawlSettings) {
         : undefined,
     },
     filters: filters.length ? { mode: settings.filterGroup.mode, chain: filters } : null,
+  };
+}
+
+export function toApiPayload(targetUrl: string, settings: CrawlSettings) {
+  const { settings: settingsPayload, filters } = buildSettingsPayload(settings);
+  return {
+    target_url: targetUrl,
+    mode: settings.mode,
+    settings: settingsPayload,
+    filters,
   };
 }
