@@ -193,3 +193,22 @@ export interface DataItemDetail extends DataItem {
   // plain-text scrapes (markdown/xml) are wrapped as { text: "..." } server-side.
   content: Record<string, unknown>;
 }
+
+// Mirrors backend CrawlTemplateOut. `settings`/`filters` are the raw snake_case
+// create-request payload as stored, not the UI's CrawlSettings shape (see
+// buildSettingsPayload in api-mapper.ts — templates snapshot its output).
+export interface CrawlTemplate {
+  id: string;
+  name: string;
+  settings: Record<string, unknown>;
+  filters: Record<string, unknown> | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+// Mirrors backend ApiKeyOut.
+export interface ApiKeyStatus {
+  provider: GenAIProvider;
+  hasKey: boolean;
+  updatedAt: number | null;
+}
