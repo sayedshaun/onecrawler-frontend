@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Globe } from "lucide-react";
+import { ChevronDown, Globe, Layers, Loader2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModeSelector } from "@/components/crawl-form/mode-selector";
 import { LinkExtractionSection } from "@/components/crawl-form/link-extraction-section";
@@ -14,8 +22,10 @@ import { ProxySection } from "@/components/crawl-form/proxy-section";
 import { BrowserSection } from "@/components/crawl-form/browser-section";
 import { LaunchSummary } from "@/components/crawl-form/launch-summary";
 import { SettingsPreview } from "@/components/crawl-form/settings-preview";
+import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
-import { createCrawl } from "@/lib/crawls-api";
+import { createCrawl, createCrawlFromPayload } from "@/lib/crawls-api";
+import { listTemplates } from "@/lib/templates-api";
 import { useSettingsStore } from "@/store/settings-store";
 import type { CrawlSettings } from "@/lib/types";
 
@@ -32,8 +42,32 @@ export default function NewCrawlPage() {
   const [targetUrl, setTargetUrl] = useState("");
   const [settings, setSettings] = useState<CrawlSettings>(() => JSON.parse(JSON.stringify(defaults)));
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("discovery");
+
+  // Direct Scraper extracts content from exactly the target URL — there's no
+  // discovery phase, so link extraction strategy/limit/patterns and the
+  // discovered-link filter chain don't apply to it.
+  const isDirectScraper = settings.mode === "scraper";
+  // Sitemap discovery is plain HTTP (no browser is ever launched), so none of
+  // the Browser & Behavior settings do anything for it.
+  const isSitemap = settings.mode === "sitemap";
+  // Only Crawler and Scraper modes actually extract page content; Sitemap and
+  // Link Extraction only ever discover URLs/links.
+  const showExtraction = settings.mode === "crawler" || settings.mode === "scraper";
+  // Only Link Extraction branches on shallow/deep — Crawler always runs a
+  // single orchestrated pass regardless of this setting.
+  const showStrategy = settings.mode === "link_extraction";
+  // Human-behavior simulation only drives the deep-link-extraction and
+  // crawler worker loops; Sitemap has no browser and Scraper has no such loop.
+  const showHumanBehavior = settings.mode === "link_extraction" || settings.mode === "crawler";
   const [launching, setLaunching] = useState(false);
   const [launchError, setLaunchError] = useState<string | null>(null);
+
+  const { data: templateData } = usePolledResource(() => listTemplates());
+  const templates = templateData?.items ?? [];
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [launchingTemplate, setLaunchingTemplate] = useState(false);
+  const [templateError, setTemplateError] = useState<string | null>(null);
 
   function patchSettings(patch: Partial<CrawlSettings>) {
     setSettings((prev) => ({ ...prev, ...patch }));
@@ -50,6 +84,26 @@ export default function NewCrawlPage() {
     } catch (err) {
       setLaunchError(err instanceof ApiError ? err.message : "Failed to start crawl.");
       setLaunching(false);
+    }
+  }
+
+  async function handleLaunchFromTemplate() {
+    const url = normalizeUrl(targetUrl);
+    const template = templates.find((t) => t.id === templateId);
+    if (!url || !template) return;
+    setLaunchingTemplate(true);
+    setTemplateError(null);
+    try {
+      const job = await createCrawlFromPayload({
+        target_url: url,
+        mode: settings.mode,
+        settings: template.settings,
+        filters: template.filters,
+      });
+      navigate(`/dashboard/crawls/${job.id}`);
+    } catch (err) {
+      setTemplateError(err instanceof ApiError ? err.message : "Failed to start crawl from template.");
+      setLaunchingTemplate(false);
     }
   }
 
@@ -76,7 +130,55 @@ export default function NewCrawlPage() {
               </div>
             </div>
 
-            <ModeSelector value={settings.mode} onChange={(mode) => patchSettings({ mode })} />
+            <ModeSelector
+              value={settings.mode}
+              onChange={(mode) => {
+                patchSettings({ mode });
+                if (mode === "scraper" && (activeTab === "discovery" || activeTab === "filters")) {
+                  setActiveTab("scraping");
+                } else if (mode === "sitemap" && activeTab === "browser") {
+                  setActiveTab("network");
+                }
+              }}
+            />
+
+            {templates.length > 0 && (
+              <div className="space-y-1.5 rounded-lg border border-dashed border-border p-3">
+                <Label>Start from a template</Label>
+                <p className="text-xs text-muted-foreground">
+                  Applies the template's saved settings instead of the Advanced Settings below. Mode is
+                  still whatever's selected above.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <Select value={templateId ?? undefined} onValueChange={setTemplateId}>
+                    <SelectTrigger className="w-56">
+                      <SelectValue placeholder="Choose a template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!templateId || !targetUrl.trim() || launchingTemplate}
+                    onClick={handleLaunchFromTemplate}
+                  >
+                    {launchingTemplate ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Layers className="h-3.5 w-3.5" />
+                    )}
+                    Launch from template
+                  </Button>
+                </div>
+                {templateError && <p className="text-xs text-destructive">{templateError}</p>}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -88,33 +190,53 @@ export default function NewCrawlPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="discovery">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-4 flex-wrap">
-                <TabsTrigger value="discovery">Discovery</TabsTrigger>
+                {!isDirectScraper && <TabsTrigger value="discovery">Discovery</TabsTrigger>}
                 <TabsTrigger value="scraping">Scraping</TabsTrigger>
-                <TabsTrigger value="filters">Filters</TabsTrigger>
+                {!isDirectScraper && <TabsTrigger value="filters">Filters</TabsTrigger>}
                 <TabsTrigger value="network">Network</TabsTrigger>
-                <TabsTrigger value="browser">Browser &amp; Behavior</TabsTrigger>
+                {!isSitemap && <TabsTrigger value="browser">Browser &amp; Behavior</TabsTrigger>}
               </TabsList>
 
-              <TabsContent value="discovery">
-                <LinkExtractionSection settings={settings} onChange={patchSettings} />
-              </TabsContent>
+              {!isDirectScraper && (
+                <TabsContent value="discovery">
+                  <LinkExtractionSection
+                    settings={settings}
+                    onChange={patchSettings}
+                    showStrategy={showStrategy}
+                    limitLabel={settings.mode === "crawler" ? "Page limit" : "Link / URL limit"}
+                    limitDescription={
+                      settings.mode === "crawler"
+                        ? "Hard cap on pages scraped, not just discovered."
+                        : "Hard cap on collected links. Always set this for broad sites."
+                    }
+                  />
+                </TabsContent>
+              )}
               <TabsContent value="scraping">
-                <ScrapingSection settings={settings} onChange={patchSettings} />
+                <ScrapingSection settings={settings} onChange={patchSettings} showExtraction={showExtraction} />
               </TabsContent>
-              <TabsContent value="filters">
-                <FilterChainBuilder
-                  group={settings.filterGroup}
-                  onChange={(filterGroup) => patchSettings({ filterGroup })}
-                />
-              </TabsContent>
+              {!isDirectScraper && (
+                <TabsContent value="filters">
+                  <FilterChainBuilder
+                    group={settings.filterGroup}
+                    onChange={(filterGroup) => patchSettings({ filterGroup })}
+                  />
+                </TabsContent>
+              )}
               <TabsContent value="network">
                 <ProxySection settings={settings} onChange={patchSettings} />
               </TabsContent>
-              <TabsContent value="browser">
-                <BrowserSection settings={settings} onChange={patchSettings} />
-              </TabsContent>
+              {!isSitemap && (
+                <TabsContent value="browser">
+                  <BrowserSection
+                    settings={settings}
+                    onChange={patchSettings}
+                    showHumanBehavior={showHumanBehavior}
+                  />
+                </TabsContent>
+              )}
             </Tabs>
           </CardContent>
         </Card>
