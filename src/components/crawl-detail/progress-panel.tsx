@@ -1,4 +1,4 @@
-import { Ban, CheckCircle2, Clock3, Gauge, RotateCcw, XCircle } from "lucide-react";
+import { Ban, CheckCircle2, Clock3, Gauge, Radar, RotateCcw, XCircle } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -7,6 +7,13 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { ThroughputChart } from "@/components/crawl-detail/throughput-chart";
 import { formatDuration, formatNumber } from "@/lib/utils";
 import type { CrawlDetail } from "@/lib/types";
+
+// Sitemap/link_extraction jobs only discover URLs — they never scrape, so
+// urlsScraped/urlsFailed and throughputHistory stay at zero/empty for their
+// entire run (confirmed against the live backend). Track discovery instead
+// of extraction progress for these modes so the bar/graph aren't dead the
+// whole time the job is actually working.
+const DISCOVERY_ONLY_MODES = new Set(["sitemap", "link_extraction"]);
 
 export function ProgressPanel({
   job,
@@ -17,10 +24,12 @@ export function ProgressPanel({
   onCancel: () => void;
   onRetry: () => void;
 }) {
-  const processed = job.urlsScraped + job.urlsFailed;
+  const discoveryOnly = DISCOVERY_ONLY_MODES.has(job.mode);
+  const processed = discoveryOnly ? job.urlsDiscovered : job.urlsScraped + job.urlsFailed;
   const pct = job.urlLimit > 0 ? Math.min(100, Math.round((processed / job.urlLimit) * 100)) : 0;
   const elapsed = ((job.finishedAt ?? Date.now()) - (job.startedAt ?? job.createdAt)) / 1000;
   const currentRate = job.throughputHistory.at(-1)?.pagesPerSec ?? 0;
+  const discoveryRate = elapsed > 0 ? job.urlsDiscovered / elapsed : 0;
 
   const metrics = [
     { icon: Gauge, label: "Discovered", value: formatNumber(job.urlsDiscovered) },
@@ -45,7 +54,13 @@ export function ProgressPanel({
             <div className="mt-1 flex items-center gap-2">
               <StatusBadge status={job.status} />
               <span className="text-xs text-muted-foreground">
-                {job.status === "running" ? `${currentRate.toFixed(1)} pages/s` : `${processed} pages processed`}
+                {job.status === "running"
+                  ? discoveryOnly
+                    ? `${formatNumber(job.urlsDiscovered)} URLs discovered so far`
+                    : `${currentRate.toFixed(1)} pages/s`
+                  : discoveryOnly
+                    ? `${formatNumber(processed)} URLs discovered`
+                    : `${processed} pages processed`}
               </span>
             </div>
           </div>
@@ -67,7 +82,7 @@ export function ProgressPanel({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              {processed} / {job.urlLimit} URLs
+              {processed} / {job.urlLimit} URLs {discoveryOnly ? "discovered" : ""}
             </span>
             <span>{pct}%</span>
           </div>
@@ -95,7 +110,21 @@ export function ProgressPanel({
           ))}
         </div>
 
-        <ThroughputChart history={job.throughputHistory} />
+        {discoveryOnly ? (
+          <div className="flex h-28 flex-col items-center justify-center gap-1.5 rounded-lg border border-border text-center">
+            <Radar className={`h-4 w-4 text-muted-foreground ${job.status === "running" ? "animate-pulse" : ""}`} />
+            <p className="text-lg font-semibold tabular-nums text-foreground">
+              {formatNumber(job.urlsDiscovered)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {job.status === "running"
+                ? `URLs discovered · ~${discoveryRate.toFixed(1)}/s`
+                : "URLs discovered"}
+            </p>
+          </div>
+        ) : (
+          <ThroughputChart history={job.throughputHistory} />
+        )}
       </CardContent>
     </Card>
   );
