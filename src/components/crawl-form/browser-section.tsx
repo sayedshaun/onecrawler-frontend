@@ -12,9 +12,13 @@ import type { CrawlSettings } from "@/lib/types";
 export function BrowserSection({
   settings,
   onChange,
+  showHumanBehavior = true,
 }: {
   settings: CrawlSettings;
   onChange: (patch: Partial<CrawlSettings>) => void;
+  /** Direct Scraper never drives the behavior-simulation worker loop, so this
+   * toggle has no effect there. */
+  showHumanBehavior?: boolean;
 }) {
   const browser = settings.browserSettings;
   const human = settings.humanBehaviorSettings;
@@ -97,14 +101,16 @@ export function BrowserSection({
         onCheckedChange={(checked) => updateBrowser({ headless: checked })}
       />
 
-      <SwitchField
-        label="Simulate human behavior"
-        description="Adds scroll, delay, and mouse-move simulation during deep link extraction. Reveals lazy-loaded links but slows crawls."
-        checked={settings.enableHumanBehaviors}
-        onCheckedChange={(checked) => onChange({ enableHumanBehaviors: checked })}
-      />
+      {showHumanBehavior && (
+        <SwitchField
+          label="Simulate human behavior"
+          description="Adds scroll, delay, and mouse-move simulation during deep link extraction. Reveals lazy-loaded links but slows crawls."
+          checked={settings.enableHumanBehaviors}
+          onCheckedChange={(checked) => onChange({ enableHumanBehaviors: checked })}
+        />
+      )}
 
-      {settings.enableHumanBehaviors && (
+      {showHumanBehavior && settings.enableHumanBehaviors && (
         <div className="grid grid-cols-1 gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
           <Field label="Min delay (s)">
             <Input

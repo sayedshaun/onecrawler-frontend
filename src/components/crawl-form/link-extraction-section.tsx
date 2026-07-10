@@ -13,40 +13,56 @@ import type { CrawlSettings } from "@/lib/types";
 export function LinkExtractionSection({
   settings,
   onChange,
+  showStrategy = true,
+  limitLabel = "Link / URL limit",
+  limitDescription = "Hard cap on collected links. Always set this for broad sites.",
 }: {
   settings: CrawlSettings;
   onChange: (patch: Partial<CrawlSettings>) => void;
+  /** Crawler mode never reads link_extraction_strategy (it always runs a single
+   * orchestrated pass) — only Link Extraction mode branches on shallow/deep. */
+  showStrategy?: boolean;
+  limitLabel?: string;
+  limitDescription?: string;
 }) {
+  const limitField = (
+    <Field label={limitLabel} description={limitDescription}>
+      <Input
+        type="number"
+        min={1}
+        value={settings.linkExtractionLimit}
+        onChange={(e) => onChange({ linkExtractionLimit: Number(e.target.value) || 0 })}
+      />
+    </Field>
+  );
+
   return (
     <div className="space-y-5">
-      <FieldRow>
-        <Field
-          label="Discovery strategy"
-          description="Deep follows internal links recursively; shallow reads only the starting page."
-        >
-          <Select
-            value={settings.linkExtractionStrategy}
-            onValueChange={(v) => onChange({ linkExtractionStrategy: v as CrawlSettings["linkExtractionStrategy"] })}
+      {showStrategy ? (
+        <FieldRow>
+          <Field
+            label="Discovery strategy"
+            description="Deep follows internal links recursively; shallow reads only the starting page."
           >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="deep">Deep</SelectItem>
-              <SelectItem value="shallow">Shallow</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
+            <Select
+              value={settings.linkExtractionStrategy}
+              onValueChange={(v) => onChange({ linkExtractionStrategy: v as CrawlSettings["linkExtractionStrategy"] })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="deep">Deep</SelectItem>
+                <SelectItem value="shallow">Shallow</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
 
-        <Field label="Link / URL limit" description="Hard cap on collected links. Always set this for broad sites.">
-          <Input
-            type="number"
-            min={1}
-            value={settings.linkExtractionLimit}
-            onChange={(e) => onChange({ linkExtractionLimit: Number(e.target.value) || 0 })}
-          />
-        </Field>
-      </FieldRow>
+          {limitField}
+        </FieldRow>
+      ) : (
+        limitField
+      )}
 
       <Field
         label="Include patterns"

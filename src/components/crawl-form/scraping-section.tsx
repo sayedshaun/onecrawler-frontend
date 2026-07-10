@@ -20,9 +20,13 @@ const DEFAULT_GENAI: GenerativeAISettings = {
 export function ScrapingSection({
   settings,
   onChange,
+  showExtraction = true,
 }: {
   settings: CrawlSettings;
   onChange: (patch: Partial<CrawlSettings>) => void;
+  /** Sitemap and Link Extraction modes never extract page content — they only
+   * discover URLs/links — so scraping strategy/output format/GenAI don't apply. */
+  showExtraction?: boolean;
 }) {
   const isGenAI = settings.scrapingStrategy === "genai";
 
@@ -40,40 +44,47 @@ export function ScrapingSection({
 
   return (
     <div className="space-y-5">
-      <FieldRow>
-        <Field label="Extraction strategy" description="Heuristic is fast and deterministic; GenAI produces typed output.">
-          <Select value={settings.scrapingStrategy} onValueChange={(v) => setStrategy(v as CrawlSettings["scrapingStrategy"])}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="heuristic">Heuristic</SelectItem>
-              <SelectItem value="genai">GenAI</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
+      {showExtraction ? (
+        <FieldRow>
+          <Field label="Extraction strategy" description="Heuristic is fast and deterministic; GenAI produces typed output.">
+            <Select value={settings.scrapingStrategy} onValueChange={(v) => setStrategy(v as CrawlSettings["scrapingStrategy"])}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="heuristic">Heuristic</SelectItem>
+                <SelectItem value="genai">GenAI</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
 
-        <Field
-          label="Output format"
-          description={isGenAI ? "GenAI extraction only supports JSON output." : undefined}
-        >
-          <Select
-            value={settings.scrapingOutputFormat}
-            disabled={isGenAI}
-            onValueChange={(v) => onChange({ scrapingOutputFormat: v as CrawlSettings["scrapingOutputFormat"] })}
+          <Field
+            label="Output format"
+            description={isGenAI ? "GenAI extraction only supports JSON output." : undefined}
           >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="json">JSON</SelectItem>
-              <SelectItem value="markdown">Markdown</SelectItem>
-              <SelectItem value="xml">XML</SelectItem>
-              <SelectItem value="xmltei">XML-TEI</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-      </FieldRow>
+            <Select
+              value={settings.scrapingOutputFormat}
+              disabled={isGenAI}
+              onValueChange={(v) => onChange({ scrapingOutputFormat: v as CrawlSettings["scrapingOutputFormat"] })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="json">JSON</SelectItem>
+                <SelectItem value="markdown">Markdown</SelectItem>
+                <SelectItem value="xml">XML</SelectItem>
+                <SelectItem value="xmltei">XML-TEI</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </FieldRow>
+      ) : (
+        <p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+          This mode only discovers URLs — it doesn't extract page content, so extraction strategy and
+          output format don't apply here.
+        </p>
+      )}
 
       <FieldRow>
         <Field label="Concurrency" description="Number of async workers.">
@@ -113,7 +124,7 @@ export function ScrapingSection({
         </Field>
       </FieldRow>
 
-      {isGenAI && settings.genai && (
+      {showExtraction && isGenAI && settings.genai && (
         <GenAISection
           genai={settings.genai}
           onChange={(patch) => onChange({ genai: { ...settings.genai!, ...patch } })}
