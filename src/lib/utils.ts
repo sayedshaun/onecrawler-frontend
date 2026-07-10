@@ -5,6 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Shared frosted-glass treatment for elements that float over other content
+// (sticky panels, dialogs) — translucent card background + backdrop blur so
+// whatever's scrolling/dimmed behind shows through softly.
+export const GLASS_CLASS = "bg-card/60 backdrop-blur-xl backdrop-saturate-150";
+
 export function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;

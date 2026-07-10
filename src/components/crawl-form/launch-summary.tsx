@@ -3,12 +3,14 @@ import { Loader2, Rocket, Globe2, Gauge, ListFilter, Shield, Sparkles } from "lu
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { GLASS_CLASS } from "@/lib/utils";
 import type { CrawlSettings } from "@/lib/types";
 
 const MODE_LABEL: Record<CrawlSettings["mode"], string> = {
   sitemap: "Sitemap Discovery",
   link_extraction: "Link Extraction",
   crawler: "Full Crawler",
+  scraper: "Direct Scraper",
 };
 
 export function LaunchSummary({
@@ -44,7 +46,7 @@ export function LaunchSummary({
   ];
 
   return (
-    <Card className="sticky top-20 card-glow">
+    <Card className={`sticky top-20 card-glow ${GLASS_CLASS}`}>
       <CardHeader>
         <CardTitle>Launch</CardTitle>
       </CardHeader>
