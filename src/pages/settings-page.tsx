@@ -359,7 +359,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="discovery">
-            <TabsList className="mb-4 flex-wrap">
+            <TabsList className="mb-4">
               <TabsTrigger value="discovery">Discovery</TabsTrigger>
               <TabsTrigger value="scraping">Scraping</TabsTrigger>
               <TabsTrigger value="network">Network</TabsTrigger>

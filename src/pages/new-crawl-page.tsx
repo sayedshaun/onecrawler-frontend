@@ -191,7 +191,7 @@ export default function NewCrawlPage() {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4 flex-wrap">
+              <TabsList className="mb-4">
                 {!isDirectScraper && <TabsTrigger value="discovery">Discovery</TabsTrigger>}
                 <TabsTrigger value="scraping">Scraping</TabsTrigger>
                 {!isDirectScraper && <TabsTrigger value="filters">Filters</TabsTrigger>}

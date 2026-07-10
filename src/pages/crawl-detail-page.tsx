@@ -131,7 +131,7 @@ function DiscoveredTabPanel({ jobId }: { jobId: string }) {
             </DialogHeader>
 
             <Tabs defaultValue="scraping">
-              <TabsList className="mb-4 flex-wrap">
+              <TabsList className="mb-4">
                 <TabsTrigger value="scraping">Scraping</TabsTrigger>
                 <TabsTrigger value="network">Network</TabsTrigger>
                 <TabsTrigger value="browser">Browser &amp; Behavior</TabsTrigger>
@@ -347,7 +347,7 @@ export default function CrawlDetailPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="results">
-            <TabsList className="mb-4 flex-wrap">
+            <TabsList className="mb-4">
               <TabsTrigger value="results">Results ({job.urlsScraped})</TabsTrigger>
               <TabsTrigger value="discovered">Discovered URLs ({job.urlsDiscovered})</TabsTrigger>
               <TabsTrigger value="logs">Logs</TabsTrigger>
