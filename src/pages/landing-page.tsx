@@ -116,14 +116,14 @@ function HeroPreviewCard() {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 py-4">
+      <div className="grid grid-cols-3 gap-2 py-4 sm:gap-3">
         {[
           { label: "Discovered", value: "1,204" },
           { label: "Scraped", value: "958" },
           { label: "Failed", value: "12" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg bg-muted/60 p-3">
-            <p className="text-lg font-semibold tabular-nums text-foreground">{stat.value}</p>
+          <div key={stat.label} className="rounded-lg bg-muted/60 p-2 sm:p-3">
+            <p className="text-base font-semibold tabular-nums text-foreground sm:text-lg">{stat.value}</p>
             <p className="text-[11px] text-muted-foreground">{stat.label}</p>
           </div>
         ))}
