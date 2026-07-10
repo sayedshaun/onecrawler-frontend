@@ -11,6 +11,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    watch: {
+      // Docker Desktop on Windows doesn't reliably forward inotify events
+      // across the bind-mounted volume, so chokidar's default watcher can
+      // miss host-side file edits entirely. Polling guarantees changes are
+      // picked up inside the container.
+      usePolling: true,
+    },
     proxy: {
       "/api": {
         target: process.env.API_PROXY_TARGET || "http://localhost:8000",
