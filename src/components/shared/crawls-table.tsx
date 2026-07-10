@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Globe, Map, Waypoints } from "lucide-react";
+import { ArrowUpRight, FileSearch, Globe, Map, Waypoints } from "lucide-react";
 
 import {
   Table,
@@ -17,6 +17,7 @@ const MODE_META: Record<CrawlMode, { label: string; icon: typeof Globe }> = {
   sitemap: { label: "Sitemap", icon: Map },
   link_extraction: { label: "Link Extraction", icon: Waypoints },
   crawler: { label: "Crawler", icon: Globe },
+  scraper: { label: "Scraper", icon: FileSearch },
 };
 
 export function CrawlsTable({ jobs }: { jobs: CrawlSummary[] }) {

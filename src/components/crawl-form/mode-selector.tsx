@@ -1,4 +1,4 @@
-import { Globe, Map, Waypoints } from "lucide-react";
+import { FileSearch, Globe, Map, Waypoints } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { CrawlMode } from "@/lib/types";
@@ -27,6 +27,12 @@ const MODES: {
     title: "Full Crawler",
     description: "Discover links and extract content in a single orchestrated run.",
   },
+  {
+    value: "scraper",
+    icon: FileSearch,
+    title: "Direct Scraper",
+    description: "Extract content straight from the target URL — no discovery step.",
+  },
 ];
 
 export function ModeSelector({
@@ -37,7 +43,7 @@ export function ModeSelector({
   onChange: (mode: CrawlMode) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {MODES.map((mode) => {
         const active = value === mode.value;
         return (
