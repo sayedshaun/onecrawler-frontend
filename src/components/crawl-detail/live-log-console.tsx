@@ -24,7 +24,7 @@ export function LiveLogConsole({ logs }: { logs: LogLine[] }) {
   return (
     <div
       ref={ref}
-      className="scrollbar-thin h-80 overflow-y-auto rounded-lg border border-border bg-[hsl(240_12%_5%)] p-3 font-mono text-xs leading-relaxed dark:bg-black/40"
+      className="scrollbar-thin h-80 overflow-y-auto rounded-lg border border-border bg-[hsl(231_15%_12%)] p-3 font-mono text-xs leading-relaxed"
     >
       {logs.length === 0 && <p className="text-muted-foreground">No log output yet.</p>}
       {logs.map((log) => (
