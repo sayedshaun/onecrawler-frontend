@@ -1,22 +1,47 @@
 # OneCrawler UI
 
+![OneCrawler demo](.github/demo.gif)
+
 A dashboard for running and monitoring [onecrawler](../../) crawls: sitemap discovery, browser-backed link extraction, heuristic/GenAI scraping, content filters, proxies, and browser behavior — all as one shared `Settings` object, mirroring the Python library.
 
-This UI is currently **frontend-only**. All data (dashboard stats, crawl history, live progress) is simulated in the browser via `src/store/crawl-store.ts` — there is no backend wired up yet. The "API not connected" badge in the top bar is a reminder of that. Wiring this up to a real FastAPI backend around `onecrawler` is the next step.
+The UI talks to a real FastAPI backend (a sibling `onecrawler-backend` project) over a REST API, with the crawl detail page polling for live progress, throughput, and results as a job runs.
+
+## What's here
+
+- **Landing page** — public marketing page at `/`.
+- **Auth** — email/password login and signup, JWT-based, persisted in `localStorage`.
+- **Dashboard** — aggregate stats (crawls, pages scraped, success rate, active jobs) and a recent-crawls table.
+- **New Crawl** — pick a discovery mode (sitemap / link extraction / full crawler / direct scraper), then configure discovery limits & patterns, scraping strategy (heuristic or GenAI with a schema builder), content filters (`by_date` / `by_keywords` / `by_files` / `by_extension` / `by_cosine_similarity`, composable with AND/OR), proxies, and browser/human-behavior settings. A collapsible "Settings Payload" panel previews the exact JSON sent to the backend.
+- **Crawl Detail** — live progress bar, throughput chart, discovered-URL stream, results table with a content preview drawer, and a terminal-style log console.
+- **Crawl History** — searchable, filterable list of all jobs.
+- **Extracted Data** — a global, cross-crawl browser for every scraped result, filterable by format, with the same content preview drawer.
+- **Settings** — default `Settings` values applied to every new crawl, persisted to `localStorage`.
 
 ## Requirements
 
-- **Node.js 20+** and npm. This machine didn't have Node installed at the time this project was scaffolded — install it from [nodejs.org](https://nodejs.org/) before continuing.
+- **Node.js 20+** and npm, **or** Docker.
+- A running `onecrawler-backend` instance (FastAPI + Postgres + Redis + an arq worker) — this UI has no functionality of its own without it.
 
 ## Getting started
 
+### With Docker (recommended)
+
 ```bash
-cd onecrawler-application/ui
+docker compose -f docker-compose.dev.yml up
+```
+
+This builds the `dev` stage of the `Dockerfile` and starts a hot-reloading Vite dev server on `http://localhost:5173`, with `/api` proxied per `API_PROXY_TARGET` in `.env` (defaults to `http://host.docker.internal:8000`, i.e. a backend running on your host machine).
+
+For a production-like preview instead — a static build served by Caddy, with `/api` reverse-proxied the same way — use `docker compose up` (no `-f`) instead, which serves on `http://localhost:8080`.
+
+### With Node directly
+
+```bash
 npm install
 npm run dev
 ```
 
-Then open the printed local URL (default `http://localhost:5173`).
+Then open the printed local URL (default `http://localhost:5173`). Point `vite.config.ts`'s dev proxy (or `API_PROXY_TARGET`) at wherever `onecrawler-backend` is running.
 
 Other scripts:
 
@@ -26,14 +51,6 @@ npm run preview   # preview the production build locally
 npm run lint      # eslint
 ```
 
-## What's here
-
-- **Dashboard** — aggregate stats (crawls, pages scraped, success rate, active jobs) and a recent-crawls table.
-- **New Crawl** — pick a discovery mode (sitemap / link extraction / full crawler), then configure discovery limits & patterns, scraping strategy (heuristic or GenAI with a schema builder), content filters (`by_date` / `by_keywords` / `by_files` / `by_extension` / `by_cosine_similarity`, composable with AND/OR), proxies, and browser/human-behavior settings. A collapsible "Settings Payload" panel previews the exact JSON that will be sent once the backend exists.
-- **Crawl Detail** — live progress bar, throughput chart, discovered-URL stream, results table with a content preview drawer, and a terminal-style log console. Backed by an in-browser simulation loop, not a real crawl.
-- **Crawl History** — searchable, filterable list of all jobs.
-- **Settings** — default `Settings` values applied to every new crawl, persisted to `localStorage`.
-
 ## Project structure
 
 ```
@@ -41,22 +58,23 @@ src/
   components/
     ui/            shadcn-style primitives (button, card, dialog, select, ...)
     layout/        app shell, sidebar, top bar, theme toggle
+    auth/          shared login/signup layout
+    routing/       route guards (ProtectedRoute)
     crawl-form/    New Crawl / Settings page form sections
     crawl-detail/  live progress, logs, results, discovered URLs
     dashboard/     dashboard-only widgets
-    shared/        cross-page widgets (status badge, crawls table, empty state)
+    shared/        cross-page widgets (status badge, crawls table, result drawer, empty state, pagination)
   pages/           one file per route
-  store/           zustand stores (simulated crawl engine + persisted defaults)
+  hooks/           usePolledResource — polling fetch hook used across live views
+  store/           zustand stores (auth session, persisted crawl-form defaults)
   lib/
     types.ts       CrawlSettings etc. — mirrors onecrawler's Python Settings shape
-    api-mapper.ts  converts UI state to the future backend's snake_case payload
-    mock-data.ts   seed data + fake URL/result generators
+    api.ts         apiFetch — the shared authenticated fetch wrapper
+    crawls-api.ts  crawl/data/discovered-URL/log endpoints
+    api-mapper.ts  converts UI state to the backend's snake_case payload
   providers/       theme provider (light/dark/system)
 ```
 
-## Connecting a real backend later
+## Backend contract
 
-`src/lib/api-mapper.ts` already shapes crawl settings into the snake_case payload matching onecrawler's `Settings` kwargs (`link_extraction_limit`, `proxy_rotation_method`, `scraping_output_format`, etc.) — that's the contract the FastAPI backend should accept. The main integration points are:
-
-1. `src/store/crawl-store.ts` — replace `createJob`'s in-memory simulation with a real API call + a WebSocket/SSE subscription for progress ticks.
-2. `vite.config.ts` already proxies `/api` to `http://localhost:8000` in dev — point that at wherever the backend runs.
+`src/lib/api-mapper.ts` shapes crawl settings into the snake_case payload matching onecrawler's `Settings` kwargs (`link_extraction_limit`, `proxy_rotation_method`, `scraping_output_format`, etc.) — that's the contract `onecrawler-backend` accepts. `src/lib/crawls-api.ts` is the full list of REST endpoints this UI calls (crawls, discovered URLs, logs, extracted data, cancel/retry/delete).
