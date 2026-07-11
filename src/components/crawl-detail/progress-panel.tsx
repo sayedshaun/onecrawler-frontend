@@ -1,4 +1,4 @@
-import { Ban, CheckCircle2, Clock3, Gauge, Radar, RotateCcw, XCircle } from "lucide-react";
+import { Ban, CheckCircle2, Clock3, Download, Gauge, Loader2, Radar, RotateCcw, XCircle } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -19,10 +19,14 @@ export function ProgressPanel({
   job,
   onCancel,
   onRetry,
+  onDownload,
+  downloading,
 }: {
   job: CrawlDetail;
   onCancel: () => void;
   onRetry: () => void;
+  onDownload: () => void;
+  downloading: boolean;
 }) {
   const discoveryOnly = DISCOVERY_ONLY_MODES.has(job.mode);
   const processed = discoveryOnly ? job.urlsDiscovered : job.urlsScraped + job.urlsFailed;
@@ -66,6 +70,12 @@ export function ProgressPanel({
           </div>
 
           <div className="flex gap-2">
+            {job.urlsScraped > 0 && (
+              <Button variant="outline" size="sm" disabled={downloading} onClick={onDownload}>
+                {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                Download results
+              </Button>
+            )}
             {job.status === "running" && (
               <Button variant="outline" size="sm" onClick={onCancel}>
                 <Ban className="h-3.5 w-3.5" /> Cancel

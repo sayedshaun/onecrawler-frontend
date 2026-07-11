@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Database, Eye, Search } from "lucide-react";
+import { Database, Download, Eye, Loader2, Search } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer";
 import { usePolledResource } from "@/hooks/use-polled-resource";
-import { listData } from "@/lib/crawls-api";
+import { downloadDataItem, listData } from "@/lib/crawls-api";
 import { formatRelativeTime, truncate } from "@/lib/utils";
 import type { DataItem, ScrapingOutputFormat } from "@/lib/types";
 
@@ -42,10 +42,22 @@ export default function DataPage() {
   const [format, setFormat] = useState<ScrapingOutputFormat | "all">("all");
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<DataItem | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     setPage(0);
   }, [query, format]);
+
+  async function handleDownload(id: string) {
+    setDownloadingId(id);
+    try {
+      await downloadDataItem(id);
+    } catch {
+      // Best-effort — the drawer's own content view remains the fallback.
+    } finally {
+      setDownloadingId(null);
+    }
+  }
 
   const { data, loading, error } = usePolledResource(
     () =>
@@ -131,7 +143,7 @@ export default function DataPage() {
                       <TableHead>Format</TableHead>
                       <TableHead className="text-right">Words</TableHead>
                       <TableHead className="hidden md:table-cell">Extracted</TableHead>
-                      <TableHead className="w-10" />
+                      <TableHead className="w-20" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -156,9 +168,24 @@ export default function DataPage() {
                           {formatRelativeTime(new Date(item.extractedAt))}
                         </TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelected(item)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelected(item)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              disabled={downloadingId === item.id}
+                              onClick={() => handleDownload(item.id)}
+                            >
+                              {downloadingId === item.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Download className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

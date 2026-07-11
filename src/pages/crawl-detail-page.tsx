@@ -31,6 +31,7 @@ import {
   createCrawlFromPayload,
   deleteCrawl,
   deleteDiscoveredUrl,
+  downloadCrawlResults,
   getCrawl,
   listCrawlLogs,
   listData,
@@ -199,6 +200,7 @@ export default function CrawlDetailPage() {
   const [retrying, setRetrying] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const load = useCallback(async () => {
     if (!jobId) return;
@@ -233,6 +235,19 @@ export default function CrawlDetailPage() {
       await load();
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : "Failed to cancel crawl.");
+    }
+  }
+
+  async function handleDownload() {
+    if (!job) return;
+    setActionError(null);
+    setDownloading(true);
+    try {
+      await downloadCrawlResults(job.id);
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : "Failed to download results.");
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -334,7 +349,13 @@ export default function CrawlDetailPage() {
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{actionError}</p>
       )}
 
-      <ProgressPanel job={job} onCancel={handleCancel} onRetry={handleRetry} />
+      <ProgressPanel
+        job={job}
+        onCancel={handleCancel}
+        onRetry={handleRetry}
+        onDownload={handleDownload}
+        downloading={downloading}
+      />
       {retrying && (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Loader2 className="h-3 w-3 animate-spin" /> Starting new crawl…
