@@ -1,5 +1,12 @@
 # OneCrawler UI
 
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Zustand](https://img.shields.io/badge/Zustand-state-593d88?logo=react&logoColor=white)](https://github.com/pmndrs/zustand)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
+
 ![OneCrawler demo](.github/demo.gif)
 
 A dashboard for running and monitoring [onecrawler](../../) crawls: sitemap discovery, browser-backed link extraction, heuristic/GenAI scraping, content filters, proxies, and browser behavior — all as one shared `Settings` object, mirroring the Python library.
