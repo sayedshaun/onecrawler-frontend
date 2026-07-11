@@ -389,7 +389,7 @@ export function ResultDetailDrawer({
 
             <Separator />
 
-            <ScrollArea className="flex-1">
+            <ScrollArea className="min-h-0 flex-1">
               {loading && (
                 <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading content…
