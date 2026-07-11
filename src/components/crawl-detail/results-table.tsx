@@ -66,20 +66,20 @@ export function ResultsTable({ results }: { results: CrawlResultItem[] }) {
       </div>
 
       <div className="hidden sm:block">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Format</TableHead>
-              <TableHead className="text-right">Words</TableHead>
-              <TableHead className="w-20" />
+              <TableHead className="w-28">Format</TableHead>
+              <TableHead className="w-24 text-right">Words</TableHead>
+              <TableHead className="w-24" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {results.map((result) => (
               <TableRow key={result.id}>
-                <TableCell>
-                  <p className="font-medium text-foreground">{truncate(result.title, 60)}</p>
+                <TableCell className="min-w-0">
+                  <p className="truncate font-medium text-foreground">{truncate(result.title, 60)}</p>
                   <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{result.url}</p>
                 </TableCell>
                 <TableCell>
