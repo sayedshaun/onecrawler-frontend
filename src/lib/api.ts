@@ -47,3 +47,33 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
+
+/** Fetches a file endpoint and triggers a browser download, reading the
+ * filename from Content-Disposition when the server sets one. */
+export async function apiDownload(path: string, fallbackFilename: string): Promise<void> {
+  const token = getAuthToken();
+  const res = await fetch(path, {
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) onUnauthorized();
+    throw new ApiError(res.statusText, res.status);
+  }
+
+  const disposition = res.headers.get("Content-Disposition");
+  const filename = disposition?.match(/filename\*?=(?:UTF-8'')?"?([^";\n]+)"?/i)?.[1] ?? fallbackFilename;
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = decodeURIComponent(filename);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

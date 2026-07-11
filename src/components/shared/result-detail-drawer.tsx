@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { Download, ExternalLink, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -12,10 +12,11 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ApiError } from "@/lib/api";
-import { getDataItem } from "@/lib/crawls-api";
+import { downloadDataItem, getDataItem } from "@/lib/crawls-api";
 import { cn, formatNumber } from "@/lib/utils";
 import type { DataItemDetail, ScrapingOutputFormat } from "@/lib/types";
 
@@ -325,6 +326,7 @@ export function ResultDetailDrawer({
   const [detail, setDetail] = useState<DataItemDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!result) {
@@ -349,6 +351,18 @@ export function ResultDetailDrawer({
     };
   }, [result]);
 
+  async function handleDownload() {
+    if (!result) return;
+    setDownloading(true);
+    try {
+      await downloadDataItem(result.id);
+    } catch {
+      // Best-effort — the content already visible in the drawer is the fallback.
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <Sheet open={!!result} onOpenChange={onOpenChange}>
       <SheetContent className="flex w-full flex-col gap-4 sm:max-w-2xl lg:max-w-3xl">
@@ -358,6 +372,17 @@ export function ResultDetailDrawer({
               <SheetTitle className="pr-6">{result.title || "(untitled)"}</SheetTitle>
               <SheetDescription className="break-all font-mono text-xs">{result.url}</SheetDescription>
             </SheetHeader>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="self-start"
+              disabled={downloading}
+              onClick={handleDownload}
+            >
+              {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              Download
+            </Button>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-lg border border-border p-2.5">

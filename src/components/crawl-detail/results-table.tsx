@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, FileSearch } from "lucide-react";
+import { Download, Eye, FileSearch, Loader2 } from "lucide-react";
 
 import {
   Table,
@@ -13,11 +13,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer";
+import { downloadDataItem } from "@/lib/crawls-api";
 import { truncate } from "@/lib/utils";
 import type { CrawlResultItem } from "@/lib/types";
 
 export function ResultsTable({ results }: { results: CrawlResultItem[] }) {
   const [selected, setSelected] = useState<CrawlResultItem | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  async function handleDownload(id: string) {
+    setDownloadingId(id);
+    try {
+      await downloadDataItem(id);
+    } catch {
+      // Best-effort — the drawer's own content view remains the fallback.
+    } finally {
+      setDownloadingId(null);
+    }
+  }
 
   if (results.length === 0) {
     return (
@@ -59,7 +72,7 @@ export function ResultsTable({ results }: { results: CrawlResultItem[] }) {
               <TableHead>Title</TableHead>
               <TableHead>Format</TableHead>
               <TableHead className="text-right">Words</TableHead>
-              <TableHead className="w-10" />
+              <TableHead className="w-20" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -78,9 +91,24 @@ export function ResultsTable({ results }: { results: CrawlResultItem[] }) {
                   {result.wordCount.toLocaleString()}
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelected(result)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelected(result)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={downloadingId === result.id}
+                      onClick={() => handleDownload(result.id)}
+                    >
+                      {downloadingId === result.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

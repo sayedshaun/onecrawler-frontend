@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiDownload, apiFetch } from "@/lib/api";
 import { buildSettingsPayload, toApiPayload } from "@/lib/api-mapper";
 import type {
   CrawlDetail,
@@ -56,6 +56,10 @@ export function cancelCrawl(id: string): Promise<CrawlSummary> {
   return apiFetch(`/api/v1/crawls/${id}/cancel`, { method: "POST" });
 }
 
+export function downloadCrawlResults(id: string): Promise<void> {
+  return apiDownload(`/api/v1/crawls/${id}/download`, `crawl-${id}.json`);
+}
+
 export function scrapeDiscovered(jobId: string, settings: CrawlSettings): Promise<CrawlSummary> {
   const { settings: settingsPayload } = buildSettingsPayload(settings);
   return apiFetch(`/api/v1/crawls/${jobId}/scrape`, {
@@ -105,4 +109,8 @@ export function listData(params: ListDataParams = {}): Promise<PaginatedResponse
 
 export function getDataItem(id: string): Promise<DataItemDetail> {
   return apiFetch(`/api/v1/data/${id}`);
+}
+
+export function downloadDataItem(id: string): Promise<void> {
+  return apiDownload(`/api/v1/data/${id}/download`, `result-${id}.json`);
 }
