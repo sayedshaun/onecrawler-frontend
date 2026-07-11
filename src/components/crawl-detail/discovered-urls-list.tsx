@@ -51,7 +51,7 @@ export function DiscoveredUrlsList({
             className="group flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs hover:bg-accent/50"
           >
             <Icon className={cn("h-3.5 w-3.5 shrink-0", STATUS_CLASS[item.status], item.status === "pending" && "animate-pulse")} />
-            <span className="truncate font-mono text-foreground/80">{item.url}</span>
+            <span className="min-w-0 flex-1 truncate font-mono text-foreground/80">{item.url}</span>
             {onDelete && (
               <Button
                 type="button"

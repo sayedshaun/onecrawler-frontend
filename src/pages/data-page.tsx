@@ -135,25 +135,25 @@ export default function DataPage() {
               </div>
 
               <div className="hidden sm:block">
-                <Table>
+                <Table className="table-fixed">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Title</TableHead>
-                      <TableHead className="hidden lg:table-cell">Source Crawl</TableHead>
-                      <TableHead>Format</TableHead>
-                      <TableHead className="text-right">Words</TableHead>
-                      <TableHead className="hidden md:table-cell">Extracted</TableHead>
-                      <TableHead className="w-20" />
+                      <TableHead className="hidden w-48 lg:table-cell">Source Crawl</TableHead>
+                      <TableHead className="w-28">Format</TableHead>
+                      <TableHead className="w-24 text-right">Words</TableHead>
+                      <TableHead className="hidden w-28 md:table-cell">Extracted</TableHead>
+                      <TableHead className="w-24" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>
-                          <p className="font-medium text-foreground">{truncate(item.title || "(untitled)", 60)}</p>
+                        <TableCell className="min-w-0">
+                          <p className="truncate font-medium text-foreground">{truncate(item.title || "(untitled)", 60)}</p>
                           <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{item.url}</p>
                         </TableCell>
-                        <TableCell className="hidden max-w-48 truncate text-xs text-muted-foreground lg:table-cell">
+                        <TableCell className="hidden truncate text-xs text-muted-foreground lg:table-cell">
                           {item.targetUrl}
                         </TableCell>
                         <TableCell>
