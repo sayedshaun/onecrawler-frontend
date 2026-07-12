@@ -1,6 +1,6 @@
 import { Field, FieldRow } from "@/components/crawl-form/field";
 import { PatternListInput } from "@/components/crawl-form/pattern-list-input";
-import { Input } from "@/components/ui/input";
+import { NumericInput } from "@/components/ui/numeric-input";
 import {
   Select,
   SelectContent,
@@ -27,11 +27,11 @@ export function LinkExtractionSection({
 }) {
   const limitField = (
     <Field label={limitLabel} description={limitDescription}>
-      <Input
-        type="number"
+      <NumericInput
         min={1}
         value={settings.linkExtractionLimit}
-        onChange={(e) => onChange({ linkExtractionLimit: Number(e.target.value) || 0 })}
+        emptyValue={0}
+        onValueChange={(linkExtractionLimit) => onChange({ linkExtractionLimit })}
       />
     </Field>
   );
