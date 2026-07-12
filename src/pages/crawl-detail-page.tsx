@@ -15,9 +15,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/shared/empty-state";
-import { JsonPreview } from "@/components/shared/json-preview";
 import { Pagination } from "@/components/shared/pagination";
 import { ProgressPanel } from "@/components/crawl-detail/progress-panel";
+import { UsedSettingsPanel } from "@/components/crawl-detail/used-settings-panel";
 import { ResultsTable } from "@/components/crawl-detail/results-table";
 import { DiscoveredUrlsList } from "@/components/crawl-detail/discovered-urls-list";
 import { LiveLogConsole } from "@/components/crawl-detail/live-log-console";
@@ -385,7 +385,7 @@ export default function CrawlDetailPage() {
               <LogsTabPanel jobId={job.id} />
             </TabsContent>
             <TabsContent value="settings">
-              <JsonPreview value={job.settings} />
+              <UsedSettingsPanel settings={job.settings} />
             </TabsContent>
           </Tabs>
         </CardContent>
