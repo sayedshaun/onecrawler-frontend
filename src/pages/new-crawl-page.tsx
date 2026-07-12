@@ -248,9 +248,9 @@ export default function NewCrawlPage() {
             className="flex w-full items-center justify-between p-5 text-left"
           >
             <div>
-              <CardTitle>Settings Payload</CardTitle>
+              <CardTitle>Settings summary</CardTitle>
               <CardDescription className="mt-1">
-                Preview of the request this will send once the API is connected.
+                Review the configuration that will be used for this crawl.
               </CardDescription>
             </div>
             <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${previewOpen ? "rotate-180" : ""}`} />
