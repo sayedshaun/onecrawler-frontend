@@ -95,13 +95,6 @@ export function BrowserSection({
         </Field>
       </FieldRow>
 
-      <SwitchField
-        label="Headless"
-        description="Run the browser without a visible window."
-        checked={browser.headless}
-        onCheckedChange={(checked) => updateBrowser({ headless: checked })}
-      />
-
       {showHumanBehavior && (
         <SwitchField
           label="Simulate human behavior"
