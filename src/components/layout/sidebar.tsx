@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   History,
   Database,
+  Layers,
   Settings,
   SquarePlus,
   Radar,
@@ -19,7 +20,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/dashboard/crawls", label: "Crawl History", icon: History },
   { to: "/dashboard/data", label: "Extracted Data", icon: Database },
-  { to: "/dashboard/settings", label: "Settings", icon: Settings },
+  { to: "/dashboard/templates", label: "Templates", icon: Layers },
 ];
 
 export function SidebarContent() {
@@ -95,6 +96,18 @@ export function SidebarContent() {
               <p className="truncate text-[11px] text-sidebar-foreground/50">{user.email}</p>
             )}
           </div>
+          <NavLink
+            to="/dashboard/settings"
+            aria-label="Settings"
+            className={({ isActive }) =>
+              cn(
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                isActive && "bg-sidebar-accent text-sidebar-foreground",
+              )
+            }
+          >
+            <Settings className="h-3.5 w-3.5" />
+          </NavLink>
           <button
             type="button"
             onClick={handleLogout}

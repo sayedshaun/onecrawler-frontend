@@ -2,7 +2,10 @@ import { Loader2, Rocket, Globe2, Gauge, ListFilter, Shield, Sparkles } from "lu
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { GLASS_CLASS } from "@/lib/utils";
 import type { CrawlSettings } from "@/lib/types";
 
@@ -20,6 +23,10 @@ export function LaunchSummary({
   launching,
   error,
   onLaunch,
+  saveAsTemplate,
+  onSaveAsTemplateChange,
+  templateName,
+  onTemplateNameChange,
 }: {
   targetUrl: string;
   settings: CrawlSettings;
@@ -27,6 +34,10 @@ export function LaunchSummary({
   launching?: boolean;
   error?: string | null;
   onLaunch: () => void;
+  saveAsTemplate: boolean;
+  onSaveAsTemplateChange: (checked: boolean) => void;
+  templateName: string;
+  onTemplateNameChange: (name: string) => void;
 }) {
   const filterCount = settings.filterGroup.filters.length;
 
@@ -71,6 +82,28 @@ export function LaunchSummary({
         </div>
 
         <Separator />
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="save-as-template" className="text-xs font-normal text-muted-foreground">
+              Save these settings as a template
+            </Label>
+            <Switch
+              id="save-as-template"
+              checked={saveAsTemplate}
+              onCheckedChange={onSaveAsTemplateChange}
+              disabled={launching}
+            />
+          </div>
+          {saveAsTemplate && (
+            <Input
+              value={templateName}
+              onChange={(e) => onTemplateNameChange(e.target.value)}
+              placeholder="Template name"
+              disabled={launching}
+            />
+          )}
+        </div>
 
         <Button className="w-full" size="lg" disabled={disabled || launching} onClick={onLaunch}>
           {launching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}

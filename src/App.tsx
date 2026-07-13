@@ -10,6 +10,7 @@ import NewCrawlPage from "@/pages/new-crawl-page";
 import CrawlDetailPage from "@/pages/crawl-detail-page";
 import HistoryPage from "@/pages/history-page";
 import DataPage from "@/pages/data-page";
+import TemplatesPage from "@/pages/templates-page";
 import SettingsPage from "@/pages/settings-page";
 import NotFoundPage from "@/pages/not-found-page";
 
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="crawls/new" element={<NewCrawlPage />} />
                 <Route path="crawls/:jobId" element={<CrawlDetailPage />} />
                 <Route path="data" element={<DataPage />} />
+                <Route path="templates" element={<TemplatesPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Routes>
             </AppShell>

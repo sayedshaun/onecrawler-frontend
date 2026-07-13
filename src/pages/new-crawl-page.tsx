@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Globe, Layers, Loader2 } from "lucide-react";
+import { ChevronDown, Globe, Layers, Loader2, Save } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModeSelector } from "@/components/crawl-form/mode-selector";
 import { LinkExtractionSection } from "@/components/crawl-form/link-extraction-section";
@@ -25,7 +34,7 @@ import { SettingsPreview } from "@/components/crawl-form/settings-preview";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
 import { createCrawl, createCrawlFromPayload } from "@/lib/crawls-api";
-import { listTemplates } from "@/lib/templates-api";
+import { createTemplate, listTemplates } from "@/lib/templates-api";
 import { useSettingsStore } from "@/store/settings-store";
 import type { CrawlSettings } from "@/lib/types";
 
@@ -63,11 +72,19 @@ export default function NewCrawlPage() {
   const [launching, setLaunching] = useState(false);
   const [launchError, setLaunchError] = useState<string | null>(null);
 
-  const { data: templateData } = usePolledResource(() => listTemplates());
+  const { data: templateData, refetch: refetchTemplates } = usePolledResource(() => listTemplates());
   const templates = templateData?.items ?? [];
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [launchingTemplate, setLaunchingTemplate] = useState(false);
   const [templateError, setTemplateError] = useState<string | null>(null);
+
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const [launchSaveAsTemplate, setLaunchSaveAsTemplate] = useState(false);
+  const [launchTemplateName, setLaunchTemplateName] = useState("");
 
   function patchSettings(patch: Partial<CrawlSettings>) {
     setSettings((prev) => ({ ...prev, ...patch }));
@@ -76,14 +93,38 @@ export default function NewCrawlPage() {
   async function handleLaunch() {
     const url = normalizeUrl(targetUrl);
     if (!url) return;
+    if (launchSaveAsTemplate && !launchTemplateName.trim()) {
+      setLaunchError("Enter a name for the template, or turn off \"Save as template\".");
+      return;
+    }
     setLaunching(true);
     setLaunchError(null);
     try {
+      if (launchSaveAsTemplate) {
+        await createTemplate(launchTemplateName.trim(), settings);
+        refetchTemplates();
+      }
       const job = await createCrawl(url, settings);
       navigate(`/dashboard/crawls/${job.id}`);
     } catch (err) {
       setLaunchError(err instanceof ApiError ? err.message : "Failed to start crawl.");
       setLaunching(false);
+    }
+  }
+
+  async function handleSaveTemplate() {
+    if (!saveName.trim()) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await createTemplate(saveName.trim(), settings);
+      setSaveOpen(false);
+      setSaveName("");
+      refetchTemplates();
+    } catch (err) {
+      setSaveError(err instanceof ApiError ? err.message : "Failed to save template.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -179,6 +220,49 @@ export default function NewCrawlPage() {
                 {templateError && <p className="text-xs text-destructive">{templateError}</p>}
               </div>
             )}
+
+            <div className="flex items-center justify-between rounded-lg border border-dashed border-border p-3">
+              <div className="space-y-0.5">
+                <Label>Save these settings</Label>
+                <p className="text-xs text-muted-foreground">
+                  Snapshot the Advanced Settings below as a reusable template.
+                </p>
+              </div>
+              <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Save className="h-3.5 w-3.5" /> Save as template…
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Save as template</DialogTitle>
+                    <DialogDescription>
+                      Snapshots the current Advanced Settings under a name you can reuse later.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="save-template-name">Template name</Label>
+                    <Input
+                      id="save-template-name"
+                      value={saveName}
+                      onChange={(e) => setSaveName(e.target.value)}
+                      placeholder="e.g. Fast JSON scrape"
+                    />
+                  </div>
+                  {saveError && <p className="text-sm text-destructive">{saveError}</p>}
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setSaveOpen(false)} disabled={saving}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveTemplate} disabled={saving || !saveName.trim()}>
+                      {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                      Save template
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardContent>
         </Card>
 
@@ -271,6 +355,10 @@ export default function NewCrawlPage() {
           launching={launching}
           error={launchError}
           onLaunch={handleLaunch}
+          saveAsTemplate={launchSaveAsTemplate}
+          onSaveAsTemplateChange={setLaunchSaveAsTemplate}
+          templateName={launchTemplateName}
+          onTemplateNameChange={setLaunchTemplateName}
         />
       </div>
     </div>

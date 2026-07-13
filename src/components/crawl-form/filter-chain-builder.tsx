@@ -1,13 +1,13 @@
 import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { uid } from "@/lib/id";
 import type { FilterGroup, FilterKind, FilterNode } from "@/lib/types";
@@ -119,20 +119,20 @@ export function FilterChainBuilder({
           </Tabs>
         </div>
 
-        <Select onValueChange={(v) => addFilter(v as FilterKind)}>
-          <SelectTrigger className="w-44">
-            <span className="flex items-center gap-1.5 text-sm">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button type="button" variant="outline" size="sm" className="gap-1.5">
               <Plus className="h-3.5 w-3.5" /> Add filter
-            </span>
-          </SelectTrigger>
-          <SelectContent>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
             {(Object.keys(FILTER_META) as FilterKind[]).map((kind) => (
-              <SelectItem key={kind} value={kind}>
+              <DropdownMenuItem key={kind} onClick={() => addFilter(kind)}>
                 {FILTER_META[kind].label}
-              </SelectItem>
+              </DropdownMenuItem>
             ))}
-          </SelectContent>
-        </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {group.filters.length === 0 ? (
