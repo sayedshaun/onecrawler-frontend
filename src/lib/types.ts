@@ -7,6 +7,7 @@ export type ScrapingOutputFormat = "markdown" | "json" | "xml" | "xmltei";
 export type ProxyRotationMethod = "round_robin" | "random";
 export type GenAIProvider = "openai" | "google" | "ollama";
 export type CrawlMode = "sitemap" | "link_extraction" | "crawler" | "scraper";
+export type ExportArchiveFormat = "zip" | "ndjson";
 
 export interface ProxySettings {
   server: string;

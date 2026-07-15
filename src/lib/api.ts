@@ -74,29 +74,29 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 }
 
 /** Fetches a file endpoint and triggers a browser download, reading the
- * filename from Content-Disposition when the server sets one. */
-export async function apiDownload(path: string, fallbackFilename: string): Promise<void> {
-  let token = getAuthToken();
-  let res = await fetch(path, {
-    headers: {
+ * filename from Content-Disposition when the server sets one. Pass `init`
+ * for a POST/body request (e.g. bulk export filters); omit for a plain GET. */
+export async function apiDownload(path: string, fallbackFilename: string, init?: RequestInit): Promise<void> {
+  function buildHeaders(token: string | null): HeadersInit {
+    return {
       "ngrok-skip-browser-warning": "true",
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+      ...(init?.headers ?? {}),
+    };
+  }
+
+  let token = getAuthToken();
+  let res = await fetch(path, { ...init, headers: buildHeaders(token) });
 
   if (res.status === 401 && token && (await refreshAccessToken())) {
     token = getAuthToken();
-    res = await fetch(path, {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+    res = await fetch(path, { ...init, headers: buildHeaders(token) });
   }
 
   if (!res.ok) {
     if (res.status === 401) onUnauthorized();
-    throw new ApiError(res.statusText, res.status);
+    throw new ApiError(await parseErrorDetail(res), res.status);
   }
 
   const disposition = res.headers.get("Content-Disposition");
