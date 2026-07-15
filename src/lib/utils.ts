@@ -5,10 +5,53 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** JSON.stringify escapes every standard control character (\n, \r, \t, ...)
+ * except U+2028/U+2029 (Line/Paragraph Separator) — a documented JS quirk.
+ * Scraped web content regularly contains these, and most renderers treat them
+ * as real line breaks, splitting a single-line string value into a garbled
+ * multi-line blob mid-token. Escape them explicitly so pretty-printed JSON
+ * always renders as valid, single-line strings. */
+const LINE_SEPARATOR = String.fromCharCode(0x2028);
+const PARAGRAPH_SEPARATOR = String.fromCharCode(0x2029);
+
+export function stringifyJsonForDisplay(value: unknown, space = 2): string {
+  return JSON.stringify(value, null, space)
+    .split(LINE_SEPARATOR)
+    .join("\\u2028")
+    .split(PARAGRAPH_SEPARATOR)
+    .join("\\u2029");
+}
+
 // Shared frosted-glass treatment for elements that float over other content
 // (sticky panels, dialogs) — translucent card background + backdrop blur so
 // whatever's scrolling/dimmed behind shows through softly.
 export const GLASS_CLASS = "bg-card/60 backdrop-blur-xl backdrop-saturate-150";
+
+/** navigator.clipboard.writeText silently rejects in some contexts (non-secure
+ * origins, sandboxed iframes/embeds without clipboard-write permission delegated)
+ * — falls back to a hidden-textarea + execCommand so the copy still works there.
+ * Returns whether the copy actually succeeded, so callers can show real feedback. */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
 
 export function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
