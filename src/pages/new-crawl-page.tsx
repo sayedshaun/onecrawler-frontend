@@ -72,7 +72,9 @@ export default function NewCrawlPage() {
   const [launching, setLaunching] = useState(false);
   const [launchError, setLaunchError] = useState<string | null>(null);
 
-  const { data: templateData, refetch: refetchTemplates } = usePolledResource(() => listTemplates());
+  const { data: templateData, refetch: refetchTemplates } = usePolledResource(() => listTemplates(), {
+    cacheKey: "templates",
+  });
   const templates = templateData?.items ?? [];
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [launchingTemplate, setLaunchingTemplate] = useState(false);
@@ -130,8 +132,15 @@ export default function NewCrawlPage() {
 
   async function handleLaunchFromTemplate() {
     const url = normalizeUrl(targetUrl);
+    if (!url) {
+      setTemplateError("Enter a target URL above first.");
+      return;
+    }
     const template = templates.find((t) => t.id === templateId);
-    if (!url || !template) return;
+    if (!template) {
+      setTemplateError("Select a template first.");
+      return;
+    }
     setLaunchingTemplate(true);
     setTemplateError(null);
     try {
@@ -206,7 +215,7 @@ export default function NewCrawlPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={!templateId || !targetUrl.trim() || launchingTemplate}
+                    disabled={!templateId || launchingTemplate}
                     onClick={handleLaunchFromTemplate}
                   >
                     {launchingTemplate ? (
@@ -217,7 +226,7 @@ export default function NewCrawlPage() {
                     Launch from template
                   </Button>
                 </div>
-                {templateError && <p className="text-xs text-destructive">{templateError}</p>}
+                {templateError && <p className="text-xs font-medium text-destructive">{templateError}</p>}
               </div>
             )}
 
@@ -337,7 +346,7 @@ export default function NewCrawlPage() {
                 Review the configuration that will be used for this crawl.
               </CardDescription>
             </div>
-            <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${previewOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-150 ease-out ${previewOpen ? "rotate-180" : ""}`} />
           </button>
           {previewOpen && (
             <CardContent className="pt-0">

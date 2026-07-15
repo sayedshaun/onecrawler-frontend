@@ -7,6 +7,12 @@ interface UsePolledResourceOptions {
   intervalMs?: number | null;
   /** Effect re-runs (and state resets) when any of these change. */
   deps?: unknown[];
+  /**
+   * Stable key identifying this resource (e.g. "history:all:0"). When set, the last
+   * successful result for that key is reused as the initial state on remount, so
+   * navigating away and back doesn't blank the UI while it refetches in the background.
+   */
+  cacheKey?: string;
 }
 
 interface UsePolledResource<T> {
@@ -16,12 +22,15 @@ interface UsePolledResource<T> {
   refetch: () => void;
 }
 
+const resourceCache = new Map<string, unknown>();
+
 export function usePolledResource<T>(
   fetcher: () => Promise<T>,
-  { intervalMs = null, deps = [] }: UsePolledResourceOptions = {},
+  { intervalMs = null, deps = [], cacheKey }: UsePolledResourceOptions = {},
 ): UsePolledResource<T> {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+  const cached = cacheKey !== undefined ? (resourceCache.get(cacheKey) as T | undefined) : undefined;
+  const [data, setData] = useState<T | null>(cached ?? null);
+  const [loading, setLoading] = useState(cached === undefined);
   const [error, setError] = useState<string | null>(null);
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
@@ -36,18 +45,21 @@ export function usePolledResource<T>(
       if (requestId !== requestIdRef.current) return;
       setData(result);
       setError(null);
+      if (cacheKey !== undefined) resourceCache.set(cacheKey, result);
     } catch (err) {
       if (requestId !== requestIdRef.current) return;
       setError(err instanceof ApiError ? err.message : "Failed to load data.");
     } finally {
       if (requestId === requestIdRef.current) setLoading(false);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cacheKey]);
 
   useEffect(() => {
-    setData(null);
+    const cachedForKey = cacheKey !== undefined ? (resourceCache.get(cacheKey) as T | undefined) : undefined;
+    setData(cachedForKey ?? null);
     setError(null);
-    setLoading(true);
+    setLoading(cachedForKey === undefined);
     load();
     if (!intervalMs) return;
     const id = setInterval(load, intervalMs);

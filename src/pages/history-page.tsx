@@ -40,7 +40,11 @@ export default function HistoryPage() {
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
       }),
-    { intervalMs: 4000, deps: [query, status, page] },
+    {
+      intervalMs: 4000,
+      deps: [query, status, page],
+      cacheKey: `history:${status}:${query.trim()}:${page}`,
+    },
   );
 
   const jobs = data?.items ?? [];

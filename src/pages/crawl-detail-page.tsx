@@ -28,7 +28,6 @@ import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
 import {
   cancelCrawl,
-  createCrawlFromPayload,
   deleteCrawl,
   deleteDiscoveredUrl,
   downloadCrawlResults,
@@ -36,6 +35,7 @@ import {
   listCrawlLogs,
   listData,
   listDiscoveredUrls,
+  retryCrawl,
   scrapeDiscovered,
 } from "@/lib/crawls-api";
 import { useSettingsStore } from "@/store/settings-store";
@@ -43,12 +43,15 @@ import type { CrawlDetail, CrawlSettings } from "@/lib/types";
 
 const ACTIVE_STATUSES = new Set(["queued", "running"]);
 const PAGE_SIZE = 20;
+// Reused across remounts (e.g. navigating away and back to the same crawl) so the
+// detail view shows the last-known job instantly instead of blanking while it reloads.
+const jobCache = new Map<string, CrawlDetail>();
 
 function ResultsTabPanel({ jobId }: { jobId: string }) {
   const [page, setPage] = useState(0);
   const { data, error } = usePolledResource(
     () => listData({ jobId, limit: PAGE_SIZE, offset: page * PAGE_SIZE }),
-    { deps: [jobId, page] },
+    { deps: [jobId, page], cacheKey: `crawl-results:${jobId}:${page}` },
   );
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
@@ -69,7 +72,7 @@ function DiscoveredTabPanel({ jobId }: { jobId: string }) {
   const [page, setPage] = useState(0);
   const { data, error, refetch } = usePolledResource(
     () => listDiscoveredUrls(jobId, { limit: PAGE_SIZE, offset: page * PAGE_SIZE }),
-    { deps: [jobId, page] },
+    { deps: [jobId, page], cacheKey: `crawl-discovered:${jobId}:${page}` },
   );
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
@@ -173,7 +176,7 @@ function LogsTabPanel({ jobId }: { jobId: string }) {
   const [page, setPage] = useState(0);
   const { data, error } = usePolledResource(
     () => listCrawlLogs(jobId, { limit: PAGE_SIZE, offset: page * PAGE_SIZE }),
-    { deps: [jobId, page] },
+    { deps: [jobId, page], cacheKey: `crawl-logs:${jobId}:${page}` },
   );
   // Backend returns newest-first for pagination; reverse so each page still
   // reads top-to-bottom chronologically, like a normal log console.
@@ -193,8 +196,8 @@ export default function CrawlDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
 
-  const [job, setJob] = useState<CrawlDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [job, setJob] = useState<CrawlDetail | null>(() => (jobId ? jobCache.get(jobId) ?? null : null));
+  const [loading, setLoading] = useState(() => !(jobId && jobCache.has(jobId)));
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
@@ -208,6 +211,7 @@ export default function CrawlDetailPage() {
       const detail = await getCrawl(jobId);
       setJob(detail);
       setLoadError(null);
+      jobCache.set(jobId, detail);
     } catch (err) {
       setLoadError(err instanceof ApiError ? err.message : "Failed to load crawl.");
     } finally {
@@ -216,10 +220,10 @@ export default function CrawlDetailPage() {
   }, [jobId]);
 
   useEffect(() => {
-    setLoading(true);
-    setJob(null);
+    setJob(jobId ? jobCache.get(jobId) ?? null : null);
+    setLoading(!(jobId && jobCache.has(jobId)));
     load();
-  }, [load]);
+  }, [load, jobId]);
 
   useEffect(() => {
     if (!job || !ACTIVE_STATUSES.has(job.status)) return;
@@ -270,11 +274,7 @@ export default function CrawlDetailPage() {
     setActionError(null);
     setRetrying(true);
     try {
-      const next = await createCrawlFromPayload({
-        target_url: job.targetUrl,
-        mode: job.mode,
-        settings: job.settings,
-      });
+      const next = await retryCrawl(job.id);
       navigate(`/dashboard/crawls/${next.id}`);
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : "Failed to start a new crawl.");

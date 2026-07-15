@@ -56,6 +56,10 @@ export function cancelCrawl(id: string): Promise<CrawlSummary> {
   return apiFetch(`/api/v1/crawls/${id}/cancel`, { method: "POST" });
 }
 
+export function retryCrawl(id: string): Promise<CrawlSummary> {
+  return apiFetch(`/api/v1/crawls/${id}/retry`, { method: "POST" });
+}
+
 export function downloadCrawlResults(id: string): Promise<void> {
   return apiDownload(`/api/v1/crawls/${id}/download`, `crawl-${id}.json`);
 }
