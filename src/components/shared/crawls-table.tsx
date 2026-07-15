@@ -33,7 +33,7 @@ export function CrawlsTable({ jobs }: { jobs: CrawlSummary[] }) {
             <HoverLift key={job.id}>
               <Link
                 to={`/dashboard/crawls/${job.id}`}
-                className="block rounded-lg border border-border bg-card p-3 transition-shadow duration-150 ease-out hover:shadow-md"
+                className="block rounded-lg border border-border/60 bg-card/75 p-3 backdrop-blur-xl backdrop-saturate-150 transition-shadow duration-150 ease-out hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="min-w-0 truncate font-medium text-foreground">

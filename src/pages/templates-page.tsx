@@ -183,7 +183,7 @@ export default function TemplatesPage() {
               {templates.map((t) => (
                 <HoverLift key={t.id}>
                 <div
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 transition-shadow duration-150 ease-out hover:shadow-md"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/75 p-3 backdrop-blur-xl backdrop-saturate-150 transition-shadow duration-150 ease-out hover:shadow-md"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{t.name}</p>

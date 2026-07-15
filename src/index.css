@@ -110,9 +110,19 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
+    /* Soft color blobs behind everything — glass surfaces (cards, sidebar, dialogs)
+       have nothing to refract/blur over a flat fill, so this gives them something. */
+    background-image:
+      radial-gradient(ellipse 55% 40% at 12% -10%, hsl(var(--primary) / 0.16), transparent),
+      radial-gradient(ellipse 45% 35% at 100% 0%, hsl(var(--success) / 0.12), transparent),
+      radial-gradient(ellipse 50% 40% at 50% 115%, hsl(var(--warning) / 0.08), transparent);
+    background-attachment: fixed;
   }
   .dark body {
-    background-image: radial-gradient(ellipse 70% 50% at 50% -10%, hsl(var(--primary) / 0.1), transparent);
+    background-image:
+      radial-gradient(ellipse 55% 40% at 12% -10%, hsl(var(--primary) / 0.22), transparent),
+      radial-gradient(ellipse 45% 35% at 100% 0%, hsl(var(--success) / 0.14), transparent),
+      radial-gradient(ellipse 50% 40% at 50% 115%, hsl(var(--warning) / 0.1), transparent);
     background-attachment: fixed;
   }
   ::selection {

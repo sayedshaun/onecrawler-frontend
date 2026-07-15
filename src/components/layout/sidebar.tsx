@@ -39,7 +39,7 @@ export function SidebarContent() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-sidebar">
+    <div className="flex h-full flex-col bg-sidebar/70 backdrop-blur-xl backdrop-saturate-150">
       <div className="flex h-14 items-center gap-2 px-5">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Radar className="h-4 w-4" />
@@ -117,7 +117,7 @@ export function SidebarContent() {
 
 export function Sidebar() {
   return (
-    <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-sidebar-border">
+    <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-sidebar-border/60">
       <SidebarContent />
     </aside>
   );
