@@ -212,3 +212,21 @@ export interface ApiKeyStatus {
   hasKey: boolean;
   updatedAt: number | null;
 }
+
+// Mirrors backend SessionOut.
+export interface UserSession {
+  id: string;
+  createdAt: number;
+  expiresAt: number;
+}
+
+// Mirrors backend UsageOut.
+export interface UsageStats {
+  totalJobs: number;
+  jobCounts: Record<CrawlStatus, number>;
+  urlsDiscovered: number;
+  urlsScraped: number;
+  urlsFailed: number;
+  jobsThisMonth: number;
+  urlsScrapedThisMonth: number;
+}
