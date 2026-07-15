@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
+import { HoverLift } from "@/components/shared/hover-lift";
 import { LinkExtractionSection } from "@/components/crawl-form/link-extraction-section";
 import { ScrapingSection } from "@/components/crawl-form/scraping-section";
 import { FilterChainBuilder } from "@/components/crawl-form/filter-chain-builder";
@@ -31,7 +32,7 @@ import type { CrawlSettings, CrawlTemplate } from "@/lib/types";
 
 export default function TemplatesPage() {
   const defaults = useSettingsStore((s) => s.defaults);
-  const { data, error, refetch } = usePolledResource(() => listTemplates());
+  const { data, error, refetch } = usePolledResource(() => listTemplates(), { cacheKey: "templates" });
   const templates = data?.items ?? [];
 
   const [saveOpen, setSaveOpen] = useState(false);
@@ -180,9 +181,9 @@ export default function TemplatesPage() {
           ) : (
             <div className="space-y-2">
               {templates.map((t) => (
+                <HoverLift key={t.id}>
                 <div
-                  key={t.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 transition-shadow duration-150 ease-out hover:shadow-md"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{t.name}</p>
@@ -219,6 +220,7 @@ export default function TemplatesPage() {
                     </Button>
                   </div>
                 </div>
+                </HoverLift>
               ))}
             </div>
           )}

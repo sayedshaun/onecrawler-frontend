@@ -92,7 +92,7 @@ function ImageThumb({ src, size = "h-20 w-20" }: { src: string; size?: string })
         src={src}
         alt=""
         loading="lazy"
-        className={`${size} rounded-md border border-border object-cover transition-opacity hover:opacity-90`}
+        className={`${size} rounded-md border border-border object-cover transition-opacity duration-150 ease-out hover:opacity-90`}
       />
     </a>
   );

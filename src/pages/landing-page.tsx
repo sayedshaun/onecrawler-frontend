@@ -14,6 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LiveDot } from "@/components/shared/live-dot";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const FEATURES = [
@@ -79,10 +80,10 @@ function PublicNav() {
         </Link>
 
         <nav className="ml-6 hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
-          <a href="#features" className="transition-colors hover:text-foreground">
+          <a href="#features" className="transition-colors duration-150 ease-out hover:text-foreground">
             Features
           </a>
-          <a href="#how-it-works" className="transition-colors hover:text-foreground">
+          <a href="#how-it-works" className="transition-colors duration-150 ease-out hover:text-foreground">
             How it works
           </a>
         </nav>
@@ -111,7 +112,7 @@ function HeroPreviewCard() {
           <span className="h-2.5 w-2.5 rounded-full bg-success/60" />
         </div>
         <Badge variant="success" className="gap-1.5">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
+          <LiveDot className="bg-success" />
           Running
         </Badge>
       </div>

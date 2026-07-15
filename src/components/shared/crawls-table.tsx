@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { HoverLift } from "@/components/shared/hover-lift";
 import { formatNumber, formatRelativeTime, truncate } from "@/lib/utils";
 import type { CrawlMode, CrawlSummary } from "@/lib/types";
 
@@ -29,28 +30,29 @@ export function CrawlsTable({ jobs }: { jobs: CrawlSummary[] }) {
         {jobs.map((job) => {
           const Mode = MODE_META[job.mode];
           return (
-            <Link
-              key={job.id}
-              to={`/dashboard/crawls/${job.id}`}
-              className="block rounded-lg border border-border p-3 transition-colors hover:bg-accent/50"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <span className="min-w-0 truncate font-medium text-foreground">
-                  {truncate(job.targetUrl.replace(/^https?:\/\//, ""), 30)}
-                </span>
-                <StatusBadge status={job.status} />
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <Mode.icon className="h-3 w-3" /> {Mode.label}
-                </span>
-                <span>{formatNumber(job.urlsScraped)} scraped</span>
-                {job.urlsFailed > 0 && (
-                  <span className="text-destructive">{formatNumber(job.urlsFailed)} failed</span>
-                )}
-                {job.startedAt && <span>{formatRelativeTime(new Date(job.startedAt))}</span>}
-              </div>
-            </Link>
+            <HoverLift key={job.id}>
+              <Link
+                to={`/dashboard/crawls/${job.id}`}
+                className="block rounded-lg border border-border bg-card p-3 transition-shadow duration-150 ease-out hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="min-w-0 truncate font-medium text-foreground">
+                    {truncate(job.targetUrl.replace(/^https?:\/\//, ""), 30)}
+                  </span>
+                  <StatusBadge status={job.status} />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    <Mode.icon className="h-3 w-3" /> {Mode.label}
+                  </span>
+                  <span>{formatNumber(job.urlsScraped)} scraped</span>
+                  {job.urlsFailed > 0 && (
+                    <span className="text-destructive">{formatNumber(job.urlsFailed)} failed</span>
+                  )}
+                  {job.startedAt && <span>{formatRelativeTime(new Date(job.startedAt))}</span>}
+                </div>
+              </Link>
+            </HoverLift>
           );
         })}
       </div>
@@ -76,7 +78,7 @@ export function CrawlsTable({ jobs }: { jobs: CrawlSummary[] }) {
                   <TableCell>
                     <Link
                       to={`/dashboard/crawls/${job.id}`}
-                      className="font-medium text-foreground hover:text-primary hover:underline underline-offset-2"
+                      className="font-medium text-foreground transition-colors duration-150 ease-out hover:text-primary hover:underline underline-offset-2"
                     >
                       {truncate(job.targetUrl.replace(/^https?:\/\//, ""), 42)}
                     </Link>
@@ -102,7 +104,7 @@ export function CrawlsTable({ jobs }: { jobs: CrawlSummary[] }) {
                   <TableCell>
                     <Link
                       to={`/dashboard/crawls/${job.id}`}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-foreground"
                     >
                       <ArrowUpRight className="h-4 w-4" />
                     </Link>

@@ -51,7 +51,7 @@ export function ResultsTable({ results }: { results: CrawlResultItem[] }) {
             key={result.id}
             type="button"
             onClick={() => setSelected(result)}
-            className="block w-full rounded-lg border border-border p-3 text-left transition-colors hover:bg-accent/50"
+            className="block w-full rounded-lg border border-border p-3 text-left transition-colors duration-150 ease-out hover:bg-accent/50"
           >
             <p className="truncate font-medium text-foreground">{truncate(result.title, 40)}</p>
             <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{result.url}</p>
