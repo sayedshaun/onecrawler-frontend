@@ -47,50 +47,53 @@
   }
 
   .dark {
-    /* Surface neutrals stay Dracula-inspired (#282a36-family background/card/border).
-       Accent colors (primary/success/warning/destructive) are deliberately muted and
-       re-hued to match the light theme's brand hues (243 indigo / 152 green / 38 amber)
-       instead of Dracula's saturated syntax-highlight palette, so the product reads as
-       one consistent brand across light/dark rather than a code-editor reskin. True
-       Dracula accents are reserved for the log console, which is styled separately. */
-    --background: 231 15% 18%;
+    /* Surface neutrals stay Dracula-inspired (#282a36-family background/card/border),
+       but pushed deeper/richer than stock Dracula for a more premium, higher-contrast
+       elevation hierarchy (background < card < popover < accent). Accent colors
+       (primary/success/warning/destructive) are deliberately re-hued to match the
+       light theme's brand hues (243 indigo / 152 green / 38 amber) instead of
+       Dracula's saturated syntax-highlight palette, so the product reads as one
+       consistent brand across light/dark rather than a code-editor reskin — but
+       richer/more saturated than before so they read as a real accent, not a tint.
+       True Dracula accents are reserved for the log console, styled separately. */
+    --background: 231 20% 12%;
     --foreground: 60 30% 96%;
 
-    --card: 232 14% 21%;
+    --card: 232 18% 15%;
     --card-foreground: 60 30% 96%;
 
-    --popover: 232 14% 23%;
+    --popover: 232 18% 17%;
     --popover-foreground: 60 30% 96%;
 
-    --primary: 243 55% 58%;
+    --primary: 243 62% 63%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 232 14% 24%;
+    --secondary: 232 16% 19%;
     --secondary-foreground: 60 30% 96%;
 
-    --muted: 232 14% 24%;
-    --muted-foreground: 225 27% 65%;
+    --muted: 232 16% 19%;
+    --muted-foreground: 225 20% 64%;
 
-    --accent: 232 14% 31%;
+    --accent: 232 18% 24%;
     --accent-foreground: 60 30% 96%;
 
-    --destructive: 0 58% 50%;
+    --destructive: 0 65% 57%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 45% 48%;
-    --success-foreground: 152 30% 12%;
+    --success: 152 50% 47%;
+    --success-foreground: 152 30% 10%;
 
-    --warning: 38 75% 58%;
-    --warning-foreground: 20 14% 10%;
+    --warning: 38 82% 57%;
+    --warning-foreground: 20 14% 8%;
 
-    --border: 232 14% 27%;
-    --input: 232 14% 27%;
-    --ring: 243 55% 58%;
+    --border: 232 16% 22%;
+    --input: 232 16% 22%;
+    --ring: 243 62% 63%;
 
-    --sidebar: 231 17% 15%;
-    --sidebar-foreground: 60 15% 85%;
-    --sidebar-border: 232 14% 22%;
-    --sidebar-accent: 232 14% 31%;
+    --sidebar: 231 24% 9%;
+    --sidebar-foreground: 60 15% 88%;
+    --sidebar-border: 232 18% 16%;
+    --sidebar-accent: 232 18% 24%;
   }
 }
 
@@ -107,6 +110,10 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
+  }
+  .dark body {
+    background-image: radial-gradient(ellipse 70% 50% at 50% -10%, hsl(var(--primary) / 0.1), transparent);
+    background-attachment: fixed;
   }
   ::selection {
     @apply bg-primary/25;
