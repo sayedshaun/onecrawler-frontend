@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -50,10 +50,6 @@ export function TopBar() {
       <h1 className="text-sm font-semibold text-foreground">{title}</h1>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button asChild size="sm" className="hidden sm:inline-flex">
-          <Link to="/dashboard/crawls/new">New Crawl</Link>
-        </Button>
-
         <ThemeToggle />
       </div>
     </header>
