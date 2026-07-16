@@ -23,9 +23,11 @@ export function stringifyJsonForDisplay(value: unknown, space = 2): string {
 }
 
 // Shared frosted-glass treatment for elements that float over other content
-// (sticky panels, dialogs) — translucent card background + backdrop blur so
-// whatever's scrolling/dimmed behind shows through softly.
-export const GLASS_CLASS = "bg-card/60 backdrop-blur-xl backdrop-saturate-150";
+// (sticky panels, dialogs, sheets). Points at the `.glass` component class
+// defined in index.css so every glass surface — translucent tinted fill,
+// backdrop blur/saturation, hairline border, and lit top edge — stays in sync
+// from one place.
+export const GLASS_CLASS = "glass";
 
 /** navigator.clipboard.writeText silently rejects in some contexts (non-secure
  * origins, sandboxed iframes/embeds without clipboard-write permission delegated)

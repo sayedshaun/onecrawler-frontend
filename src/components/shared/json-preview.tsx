@@ -30,7 +30,7 @@ export function JsonPreview({ value, className }: { value: unknown; className?: 
         {copyState === "copied" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
         {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy"}
       </Button>
-      <ScrollArea className="h-72 rounded-lg border border-border bg-muted/40">
+      <ScrollArea className="glass-inset h-72 rounded-lg">
         <pre className="p-4 font-mono text-[11px] leading-relaxed text-foreground/90">{json}</pre>
       </ScrollArea>
     </div>

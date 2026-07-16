@@ -83,6 +83,17 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Central easing scale. `out` intentionally overrides Tailwind's default
+      // `ease-out` (a linear-ish decel) with a richer easeOutQuint curve, so every
+      // existing `ease-out` transition across the app upgrades to the same smooth,
+      // premium feel without touching each call site.
+      transitionTimingFunction: {
+        DEFAULT: "cubic-bezier(0.4, 0, 0.2, 1)",
+        out: "cubic-bezier(0.22, 1, 0.36, 1)",
+        smooth: "cubic-bezier(0.4, 0, 0.2, 1)",
+        "smooth-out": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "smooth-in-out": "cubic-bezier(0.65, 0, 0.35, 1)",
+      },
       keyframes: {
         "pulse-ring": {
           "0%": { transform: "scale(0.9)", opacity: "0.7" },

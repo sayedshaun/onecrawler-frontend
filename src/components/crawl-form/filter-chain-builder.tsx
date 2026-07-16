@@ -149,7 +149,7 @@ export function FilterChainBuilder({
                   {group.mode}
                 </div>
               )}
-              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+              <div className="glass-inset flex items-start gap-3 rounded-lg p-3">
                 <span className="mt-1.5 shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
                   {FILTER_META[filter.kind].label}
                 </span>

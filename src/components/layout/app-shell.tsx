@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/topbar";
-import { springPage } from "@/lib/motion";
+import { transitionPage } from "@/lib/motion";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -23,9 +23,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           */}
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={springPage}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={transitionPage}
             className="mx-auto min-h-full w-full max-w-screen-2xl"
           >
             {children}

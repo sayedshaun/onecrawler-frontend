@@ -14,7 +14,7 @@ const TabsList = React.forwardRef<
     className={cn(
       // Scrolls horizontally instead of wrapping when the triggers don't fit —
       // wrapping left an orphaned last tab on its own line on narrow screens.
-      "scrollbar-thin inline-flex h-9 max-w-full items-center justify-start gap-1 overflow-x-auto rounded-lg bg-muted p-1 text-muted-foreground sm:justify-center",
+      "scrollbar-thin inline-flex h-9 max-w-full items-center justify-start gap-1 overflow-x-auto rounded-lg border border-border/60 bg-muted/50 p-1 text-muted-foreground backdrop-blur-md sm:justify-center",
       className,
     )}
     {...props}
@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
+      "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background/80 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:backdrop-blur-md",
       className,
     )}
     {...props}

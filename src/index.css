@@ -4,96 +4,113 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 8%;
+    /* Warm "cream / paper" light theme. Neutrals carry a warm ivory tint
+       (hue ~40) instead of cool gray — the page is a soft cream, cards are a
+       warm white that lifts off it, and text is a warm near-black rather than
+       blue-black. The indigo brand accent stays as the single cool pop of
+       colour against the warm ground. */
+    --background: 42 38% 96%;
+    --foreground: 28 18% 13%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 8%;
+    --card: 40 50% 99%;
+    --card-foreground: 28 18% 13%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 8%;
+    --popover: 40 50% 99%;
+    --popover-foreground: 28 18% 13%;
 
-    --primary: 243 75% 59%;
+    --primary: 244 84% 62%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 10% 8%;
+    --secondary: 42 30% 93%;
+    --secondary-foreground: 28 18% 15%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 42 30% 93%;
+    --muted-foreground: 35 10% 42%;
 
-    --accent: 240 5% 94%;
-    --accent-foreground: 240 10% 8%;
+    --accent: 40 34% 90%;
+    --accent-foreground: 28 18% 15%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 60% 36%;
+    --success: 152 55% 36%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 20 14% 10%;
+    --warning: 36 92% 48%;
+    --warning-foreground: 28 20% 10%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 243 75% 59%;
+    --border: 40 24% 86%;
+    --input: 40 24% 86%;
+    --ring: 244 84% 62%;
+
+    /* JSON viewer syntax palette — brand-cohesive tokens (indigo keys, green
+       strings, amber numbers, violet atoms) instead of raw editor theme colors. */
+    --json-key: 244 76% 54%;
+    --json-string: 152 52% 32%;
+    --json-number: 25 78% 42%;
+    --json-atom: 280 55% 50%;
+    --json-punct: 35 8% 46%;
 
     --radius: 0.75rem;
 
-    --sidebar: 240 20% 99%;
-    --sidebar-foreground: 240 10% 20%;
-    --sidebar-border: 240 6% 90%;
-    --sidebar-accent: 240 5% 94%;
+    --sidebar: 44 42% 97%;
+    --sidebar-foreground: 30 14% 24%;
+    --sidebar-border: 40 24% 86%;
+    --sidebar-accent: 40 34% 90%;
   }
 
   .dark {
-    /* Surface neutrals stay Dracula-inspired (#282a36-family background/card/border),
-       but pushed deeper/richer than stock Dracula for a more premium, higher-contrast
-       elevation hierarchy (background < card < popover < accent). Accent colors
-       (primary/success/warning/destructive) are deliberately re-hued to match the
-       light theme's brand hues (243 indigo / 152 green / 38 amber) instead of
-       Dracula's saturated syntax-highlight palette, so the product reads as one
-       consistent brand across light/dark rather than a code-editor reskin — but
-       richer/more saturated than before so they read as a real accent, not a tint.
-       True Dracula accents are reserved for the log console, styled separately. */
-    --background: 231 20% 12%;
-    --foreground: 60 30% 96%;
+    /* "Cool & crisp" dark theme. A deep, cool near-black (hue ~225, blue hint)
+       rather than a warm charcoal — text is a clean cool white, not cream. The
+       lightness ladder (background < card < popover < accent) is deliberate and
+       monotonic so every elevation step reads clearly under the glass surfaces.
+       Accent colours are re-hued to the brand family (243 indigo / 152 green /
+       38 amber) and brightened for legibility on the dark ground, so the product
+       reads as one consistent indigo-branded system across light and dark. */
+    --background: 225 30% 8%;
+    --foreground: 210 25% 97%;
 
-    --card: 232 18% 15%;
-    --card-foreground: 60 30% 96%;
+    --card: 225 24% 10%;
+    --card-foreground: 210 25% 97%;
 
-    --popover: 232 18% 17%;
-    --popover-foreground: 60 30% 96%;
+    --popover: 225 24% 12%;
+    --popover-foreground: 210 25% 97%;
 
-    --primary: 243 62% 63%;
+    --primary: 245 90% 70%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 232 16% 19%;
-    --secondary-foreground: 60 30% 96%;
+    --secondary: 225 20% 15%;
+    --secondary-foreground: 210 25% 97%;
 
-    --muted: 232 16% 19%;
-    --muted-foreground: 225 20% 64%;
+    --muted: 225 20% 15%;
+    --muted-foreground: 219 16% 66%;
 
-    --accent: 232 18% 24%;
-    --accent-foreground: 60 30% 96%;
+    --accent: 225 20% 19%;
+    --accent-foreground: 210 25% 97%;
 
-    --destructive: 0 65% 57%;
+    --destructive: 0 68% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 50% 47%;
-    --success-foreground: 152 30% 10%;
+    --success: 152 52% 50%;
+    --success-foreground: 152 40% 10%;
 
-    --warning: 38 82% 57%;
+    --warning: 38 84% 60%;
     --warning-foreground: 20 14% 8%;
 
-    --border: 232 16% 22%;
-    --input: 232 16% 22%;
-    --ring: 243 62% 63%;
+    --border: 225 18% 17%;
+    --input: 225 18% 17%;
+    --ring: 245 90% 70%;
 
-    --sidebar: 231 24% 9%;
-    --sidebar-foreground: 60 15% 88%;
-    --sidebar-border: 232 18% 16%;
-    --sidebar-accent: 232 18% 24%;
+    --json-key: 245 90% 78%;
+    --json-string: 152 52% 62%;
+    --json-number: 38 84% 68%;
+    --json-atom: 282 70% 76%;
+    --json-punct: 219 16% 58%;
+
+    --sidebar: 226 34% 6%;
+    --sidebar-foreground: 214 18% 88%;
+    --sidebar-border: 225 22% 12%;
+    --sidebar-accent: 225 20% 19%;
   }
 }
 
@@ -103,6 +120,7 @@
   }
   html {
     color-scheme: light;
+    scroll-behavior: smooth;
   }
   html.dark {
     color-scheme: dark;
@@ -127,6 +145,24 @@
   }
   ::selection {
     @apply bg-primary/25;
+  }
+}
+
+/* Accessibility: collapse all motion when the user asks the OS to reduce it.
+   framer-motion is handled separately via <MotionConfig reducedMotion="user">;
+   this covers every CSS transition/animation (Tailwind utilities, keyframes,
+   Radix overlays, spinners). Kept outside @layer so the !important always wins. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
   }
 }
 
@@ -155,5 +191,63 @@
     box-shadow:
       0 1px 2px hsl(var(--foreground) / 0.03),
       0 8px 24px -12px hsl(var(--primary) / 0.15);
+  }
+}
+
+@layer components {
+  /* ── Liquid-glass surface system ───────────────────────────────────────────
+     One source of truth for every frosted surface. Each class layers:
+       • a translucent tinted fill (so the body colour-blobs show through),
+       • backdrop blur + saturation (the "frosted" refraction),
+       • a hairline border, and
+       • a stacked shadow whose first inset line is a lit top edge — the
+         highlight that makes glass read as a physical pane rather than a tint.
+     Tuned separately for light/dark because the lit edge is white-ish on dark
+     and dark-ish on light. */
+
+  /* Primary elevated panel: cards, dialogs, sheets, sticky bars. A layered,
+     soft shadow ladder (contact + mid + ambient) gives real depth so surfaces
+     read as considered panes rather than flat fills. */
+  .glass {
+    @apply border border-border/70 backdrop-blur-xl backdrop-saturate-150;
+    background-color: hsl(var(--card) / 0.72);
+    box-shadow:
+      0 1px 2px hsl(30 30% 18% / 0.06),
+      0 4px 10px -3px hsl(30 30% 18% / 0.08),
+      0 16px 36px -14px hsl(30 28% 20% / 0.13);
+  }
+  .dark .glass {
+    background-color: hsl(var(--card) / 0.62);
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.06),
+      0 2px 6px hsl(0 0% 0% / 0.3),
+      0 14px 30px -10px hsl(0 0% 0% / 0.55),
+      0 28px 60px -28px hsl(0 0% 0% / 0.7);
+  }
+
+  /* Floating menus / tooltips: a touch more opaque than .glass so small text
+     stays legible over busy content, with a tighter drop shadow. */
+  .glass-menu {
+    @apply border border-border/60 backdrop-blur-xl backdrop-saturate-150;
+    background-color: hsl(var(--popover) / 0.8);
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--foreground) / 0.05),
+      0 10px 30px -12px hsl(var(--foreground) / 0.28);
+  }
+  .dark .glass-menu {
+    background-color: hsl(var(--popover) / 0.72);
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.06),
+      0 14px 34px -12px hsl(0 0% 0% / 0.66);
+  }
+
+  /* Recessed inline glass for sub-panels nested inside a card (code blocks,
+     summary rows, filter bars) — frosted inset rather than a flat fill. */
+  .glass-inset {
+    @apply border border-border/60 backdrop-blur-md;
+    background-color: hsl(var(--muted) / 0.4);
+  }
+  .dark .glass-inset {
+    background-color: hsl(var(--muted) / 0.35);
   }
 }

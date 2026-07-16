@@ -16,8 +16,8 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Toggle theme">
-          <Sun className="scale-100 dark:scale-0 transition-transform duration-150 ease-out absolute" />
-          <Moon className="scale-0 dark:scale-100 transition-transform duration-150 ease-out" />
+          <Sun className="scale-100 dark:scale-0 transition-transform duration-300 ease-out absolute" />
+          <Moon className="scale-0 dark:scale-100 transition-transform duration-300 ease-out" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

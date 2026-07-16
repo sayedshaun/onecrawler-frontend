@@ -62,7 +62,7 @@ export function LaunchSummary({
         <CardTitle>Launch</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">
+        <div className="glass-inset rounded-lg px-3 py-2">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Target</p>
           <p className="truncate font-mono text-xs text-foreground">
             {targetUrl || "https://example.com"}
