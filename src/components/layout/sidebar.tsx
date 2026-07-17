@@ -5,6 +5,7 @@ import {
   History,
   Database,
   Layers,
+  GraduationCap,
   Settings,
   SquarePlus,
   Radar,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { LiveDot } from "@/components/shared/live-dot";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { getDashboardOverview } from "@/lib/crawls-api";
 import { springUI } from "@/lib/motion";
@@ -23,11 +25,19 @@ const NAV_ITEMS = [
   { to: "/dashboard/crawls", label: "Crawl History", icon: History },
   { to: "/dashboard/data", label: "Extracted Data", icon: Database },
   { to: "/dashboard/templates", label: "Templates", icon: Layers },
+  { to: "/dashboard/tutorial", label: "Tutorial", icon: GraduationCap },
   { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export function SidebarContent() {
-  const { data: overview } = usePolledResource(getDashboardOverview, { intervalMs: 5000 });
+  // Shares dashboard-page's own overview poll via the same cacheKey (instant
+  // hydration from whichever fetched last, no blank badge flash) but on its
+  // own, slower interval — the running-count badge doesn't need to be as
+  // fresh as the dashboard's own charts.
+  const { data: overview } = usePolledResource(getDashboardOverview, {
+    intervalMs: 20000,
+    cacheKey: "dashboard:overview",
+  });
   const runningCount = overview?.jobCounts.running ?? 0;
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -116,9 +126,14 @@ export function SidebarContent() {
 }
 
 export function Sidebar() {
+  // The desktop <aside> is only ever hidden via CSS below lg, so without this
+  // check SidebarContent — and its overview poll — would mount and run
+  // forever on every phone, even though it's never visible there. The mobile
+  // nav Sheet renders its own SidebarContent instance only while open.
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
   return (
     <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-sidebar-border/60">
-      <SidebarContent />
+      {isDesktop && <SidebarContent />}
     </aside>
   );
 }
