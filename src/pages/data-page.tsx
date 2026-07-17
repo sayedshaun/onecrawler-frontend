@@ -238,22 +238,32 @@ export default function DataPage() {
                   cropping or blind horizontal scrolling — stack cards instead. */}
               <div className="space-y-2 sm:hidden">
                 {items.map((item) => (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
-                    onClick={() => setSelected(item)}
-                    className="block w-full rounded-lg border border-border p-3 text-left transition-colors duration-150 ease-out hover:bg-accent/50"
+                    className="flex items-start gap-3 rounded-lg border border-border p-3"
                   >
-                    <p className="truncate font-medium text-foreground">{truncate(item.title || "(untitled)", 40)}</p>
-                    <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{item.url}</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                      <Badge variant="secondary" className="uppercase">
-                        {item.format}
-                      </Badge>
-                      <span>{item.wordCount.toLocaleString()} words</span>
-                      <span>{formatRelativeTime(new Date(item.extractedAt))}</span>
-                    </div>
-                  </button>
+                    <Checkbox
+                      aria-label={`Select ${item.title || item.url}`}
+                      checked={selectedIds.has(item.id)}
+                      onChange={(e) => toggleSelected(item.id, e.target.checked)}
+                      className="mt-0.5 shrink-0"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setSelected(item)}
+                      className="min-w-0 flex-1 rounded-md text-left transition-colors duration-150 ease-out hover:bg-accent/50"
+                    >
+                      <p className="truncate font-medium text-foreground">{truncate(item.title || "(untitled)", 40)}</p>
+                      <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{item.url}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        <Badge variant="secondary" className="uppercase">
+                          {item.format}
+                        </Badge>
+                        <span>{item.wordCount.toLocaleString()} words</span>
+                        <span>{formatRelativeTime(new Date(item.extractedAt))}</span>
+                      </div>
+                    </button>
+                  </div>
                 ))}
               </div>
 
