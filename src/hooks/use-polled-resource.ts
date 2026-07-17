@@ -62,9 +62,28 @@ export function usePolledResource<T>(
     setLoading(cachedForKey === undefined);
     load();
     if (!intervalMs) return;
-    const id = setInterval(load, intervalMs);
+
+    // Pause the interval while the tab/app is backgrounded — a phone browser
+    // left open (or switched away from) would otherwise keep polling forever
+    // for no visible benefit, burning battery and data. Refetch immediately
+    // on return so the view isn't stale the moment it's looked at again.
+    let id: ReturnType<typeof setInterval> | null = setInterval(load, intervalMs);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        if (!id) {
+          load();
+          id = setInterval(load, intervalMs);
+        }
+      } else if (id) {
+        clearInterval(id);
+        id = null;
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
-      clearInterval(id);
+      if (id) clearInterval(id);
+      document.removeEventListener("visibilitychange", handleVisibility);
       requestIdRef.current += 1;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
