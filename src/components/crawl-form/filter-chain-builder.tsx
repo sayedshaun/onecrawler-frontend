@@ -35,7 +35,7 @@ function FilterParamInputs({
   switch (filter.kind) {
     case "by_date":
       return (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Input type="date" value={filter.params.start} onChange={(e) => set("start")(e.target.value)} />
           <Input type="date" value={filter.params.end} onChange={(e) => set("end")(e.target.value)} />
         </div>
