@@ -1,13 +1,21 @@
 import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/topbar";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { transitionPage } from "@/lib/motion";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const reduceMotion = useReducedMotion();
+  // Touch devices (phones/tablets) get no page-enter animation. Animating
+  // opacity/transform over the translucent backdrop-blur surfaces makes mobile
+  // GPUs briefly re-composite them, which reads as a color "shimmer" on every
+  // navigation — worst in dark mode. Desktop pointers keep the subtle transition.
+  const coarsePointer = useMediaQuery("(pointer: coarse)");
+  const animatePages = !reduceMotion && !coarsePointer;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -23,8 +31,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           */}
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={animatePages ? { opacity: 0, y: 6 } : false}
+            animate={animatePages ? { opacity: 1, y: 0 } : undefined}
             transition={transitionPage}
             className="mx-auto min-h-full w-full max-w-screen-2xl"
           >
