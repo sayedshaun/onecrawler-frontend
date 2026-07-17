@@ -128,20 +128,29 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
-    /* Soft color blobs behind everything — glass surfaces (cards, sidebar, dialogs)
-       have nothing to refract/blur over a flat fill, so this gives them something. */
+    position: relative;
+  }
+  /* Soft color blobs behind everything — glass surfaces (cards, sidebar, dialogs)
+     have nothing to refract/blur over a flat fill, so this gives them something.
+     Rendered on a fixed, isolated pseudo-element (not `background-attachment:
+     fixed` on body) so it never repaints or gets re-sampled by backdrop-blur as
+     the page scrolls — a static layer the compositor can leave completely alone. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-image:
       radial-gradient(ellipse 55% 40% at 12% -10%, hsl(var(--primary) / 0.16), transparent),
       radial-gradient(ellipse 45% 35% at 100% 0%, hsl(var(--success) / 0.12), transparent),
       radial-gradient(ellipse 50% 40% at 50% 115%, hsl(var(--warning) / 0.08), transparent);
-    background-attachment: fixed;
   }
-  .dark body {
+  .dark body::before {
     background-image:
       radial-gradient(ellipse 55% 40% at 12% -10%, hsl(var(--primary) / 0.22), transparent),
       radial-gradient(ellipse 45% 35% at 100% 0%, hsl(var(--success) / 0.14), transparent),
       radial-gradient(ellipse 50% 40% at 50% 115%, hsl(var(--warning) / 0.1), transparent);
-    background-attachment: fixed;
   }
   ::selection {
     @apply bg-primary/25;
@@ -152,6 +161,41 @@
    framer-motion is handled separately via <MotionConfig reducedMotion="user">;
    this covers every CSS transition/animation (Tailwind utilities, keyframes,
    Radix overlays, spinners). Kept outside @layer so the !important always wins. */
+/* backdrop-filter is by far the single most expensive CSS property for a
+   mobile GPU to composite — every frosted "glass" surface (cards, menus,
+   sheets, the sticky headers) forces the browser to re-blur whatever is
+   behind it. On a touch device that cost is paid on every scroll frame for
+   every visible glass surface at once, which is what actually caused the
+   "heavy" scroll feel — reducing the blur radius alone wasn't enough. Touch
+   devices get a flat, more opaque fill instead; pointer:fine (mouse/trackpad,
+   i.e. desktop) keeps the real frosted effect. Also gated on a narrow
+   viewport (not just pointer:coarse) so it still kicks in when testing via a
+   resized desktop browser window, where the pointer stays "fine". */
+@media (pointer: coarse), (max-width: 767px) {
+  [class*="backdrop-blur"],
+  .glass,
+  .glass-menu,
+  .glass-inset {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .glass {
+    background-color: hsl(var(--card) / 0.97);
+  }
+  .dark .glass {
+    background-color: hsl(var(--card) / 0.94);
+  }
+  .glass-menu {
+    background-color: hsl(var(--popover) / 0.97);
+  }
+  .dark .glass-menu {
+    background-color: hsl(var(--popover) / 0.94);
+  }
+  .glass-inset {
+    background-color: hsl(var(--muted) / 0.65);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -209,7 +253,7 @@
      soft shadow ladder (contact + mid + ambient) gives real depth so surfaces
      read as considered panes rather than flat fills. */
   .glass {
-    @apply border border-border/70 backdrop-blur-xl backdrop-saturate-150;
+    @apply border border-border/70 backdrop-blur-md backdrop-saturate-150;
     background-color: hsl(var(--card) / 0.72);
     box-shadow:
       0 1px 2px hsl(30 30% 18% / 0.06),
