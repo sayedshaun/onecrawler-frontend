@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer";
+import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer-lazy";
 import { downloadDataItem } from "@/lib/crawls-api";
 import { truncate } from "@/lib/utils";
 import type { CrawlResultItem } from "@/lib/types";
