@@ -8,7 +8,7 @@ export function PageLoader({ fullScreen = false }: { fullScreen?: boolean }) {
     <div
       className={
         fullScreen
-          ? "flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground"
+          ? "flex min-h-dvh items-center justify-center bg-background text-sm text-muted-foreground"
           : "flex items-center justify-center py-24 text-sm text-muted-foreground"
       }
     >
