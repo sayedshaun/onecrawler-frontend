@@ -380,7 +380,7 @@ export function ResultDetailDrawer({
 
   return (
     <Dialog open={!!result} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[75vh] w-full flex-col gap-4 overflow-y-auto sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl">
+      <DialogContent className="flex max-h-[75vh] flex-col gap-4 overflow-y-auto sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl">
         {result && (
           <>
             <DialogHeader>
