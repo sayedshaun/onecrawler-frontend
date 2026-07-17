@@ -12,6 +12,8 @@ const TITLES: Record<string, string> = {
   "/dashboard/crawls": "Crawl History",
   "/dashboard/crawls/new": "New Crawl",
   "/dashboard/data": "Extracted Data",
+  "/dashboard/templates": "Templates",
+  "/dashboard/tutorial": "Tutorial",
   "/dashboard/settings": "Settings",
 };
 
@@ -39,7 +41,10 @@ export function TopBar() {
       </Button>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 p-0">
+        {/* w-3/4 (not a fixed px width) so the drawer stays proportional on very
+            narrow phones instead of eating almost the whole screen; max-w-xs
+            caps it once the 3/4 share would otherwise get too wide. */}
+        <SheetContent side="left" className="w-3/4 max-w-xs p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <div onClick={() => setMobileOpen(false)} className="h-full">
             <SidebarContent />
