@@ -126,7 +126,7 @@ export default function TemplatesPage() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
+        <CardHeader className="flex-col items-start gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Crawl Templates</CardTitle>
             <CardDescription>
@@ -183,15 +183,15 @@ export default function TemplatesPage() {
               {templates.map((t) => (
                 <HoverLift key={t.id}>
                 <div
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/75 p-3 backdrop-blur-xl backdrop-saturate-150 transition-shadow duration-150 ease-out hover:shadow-md"
+                  className="flex flex-col items-start gap-3 rounded-lg border border-border/60 bg-card/95 p-3 transition-shadow duration-150 ease-out hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="truncate text-xs text-muted-foreground">
                       Updated {formatRelativeTime(new Date(t.updatedAt))}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
                     <Button variant="outline" size="sm" onClick={() => openEdit(t)}>
                       <Pencil className="h-3.5 w-3.5" />
                       View &amp; edit
