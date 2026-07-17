@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
-import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer";
+import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer-lazy";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
 import { downloadDataItem, exportData, listData } from "@/lib/crawls-api";
@@ -46,6 +47,7 @@ const ARCHIVE_FORMATS: Array<{ value: ExportArchiveFormat; label: string }> = [
 
 export default function DataPage() {
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query, 300);
   const [format, setFormat] = useState<ScrapingOutputFormat | "all">("all");
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<DataItem | null>(null);
@@ -60,7 +62,7 @@ export default function DataPage() {
   useEffect(() => {
     setPage(0);
     setSelectedIds(new Set());
-  }, [query, format]);
+  }, [debouncedQuery, format]);
 
   async function handleDownload(id: string) {
     setDownloadingId(id);
@@ -125,14 +127,14 @@ export default function DataPage() {
   const { data, loading, error } = usePolledResource(
     () =>
       listData({
-        q: query.trim() || undefined,
+        q: debouncedQuery.trim() || undefined,
         format: format === "all" ? undefined : format,
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
       }),
     {
-      deps: [query, format, page],
-      cacheKey: `data:${format}:${query.trim()}:${page}`,
+      deps: [debouncedQuery, format, page],
+      cacheKey: `data:${format}:${debouncedQuery.trim()}:${page}`,
     },
   );
 
