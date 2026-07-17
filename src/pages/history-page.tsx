@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CrawlsTable } from "@/components/shared/crawls-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { listCrawls } from "@/lib/crawls-api";
 import type { CrawlStatus } from "@/lib/types";
@@ -25,25 +26,26 @@ const FILTERS: { value: CrawlStatus | "all"; label: string }[] = [
 
 export default function HistoryPage() {
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query, 300);
   const [status, setStatus] = useState<CrawlStatus | "all">("all");
   const [page, setPage] = useState(0);
 
   useEffect(() => {
     setPage(0);
-  }, [query, status]);
+  }, [debouncedQuery, status]);
 
   const { data, loading, error } = usePolledResource(
     () =>
       listCrawls({
-        q: query.trim() || undefined,
+        q: debouncedQuery.trim() || undefined,
         status: status === "all" ? undefined : status,
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
       }),
     {
       intervalMs: 4000,
-      deps: [query, status, page],
-      cacheKey: `history:${status}:${query.trim()}:${page}`,
+      deps: [debouncedQuery, status, page],
+      cacheKey: `history:${status}:${debouncedQuery.trim()}:${page}`,
     },
   );
 
