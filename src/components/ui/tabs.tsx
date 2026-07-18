@@ -14,7 +14,13 @@ const TabsList = React.forwardRef<
     className={cn(
       // Scrolls horizontally instead of wrapping when the triggers don't fit —
       // wrapping left an orphaned last tab on its own line on narrow screens.
-      "scrollbar-thin inline-flex h-9 max-w-full items-center justify-start gap-1 overflow-x-auto rounded-lg border border-border/60 bg-muted/50 p-1 text-muted-foreground backdrop-blur-md sm:justify-center",
+      // overflow-y must be a non-"visible" value (hidden, not visible) here:
+      // per the CSS overflow spec, if overflow-x is non-visible and overflow-y
+      // computes to visible, the visible axis is *forced* to behave as auto
+      // too — so "visible" doesn't opt out, only hidden/auto/clip do. Any
+      // trigger row that's a hair taller than h-9 (font metrics, zoom) was
+      // silently growing a vertical scrollbar as a result.
+      "scrollbar-thin inline-flex h-9 max-w-full items-center justify-start gap-1 overflow-x-auto overflow-y-hidden rounded-lg border border-border/60 bg-muted/50 p-1 text-muted-foreground backdrop-blur-md sm:justify-center",
       className,
     )}
     {...props}

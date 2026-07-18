@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Layers, Loader2, Pencil, RotateCcw, Save, Trash2 } from "lucide-react";
+import { Layers, Loader2, Pencil, RotateCcw, Save, Search, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,11 @@ export default function TemplatesPage() {
   const defaults = useSettingsStore((s) => s.defaults);
   const { data, error, refetch } = usePolledResource(() => listTemplates(), { cacheKey: "templates" });
   const templates = data?.items ?? [];
+
+  const [query, setQuery] = useState("");
+  const filteredTemplates = templates.filter((t) =>
+    t.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
 
   const [saveOpen, setSaveOpen] = useState(false);
   const [name, setName] = useState("");
@@ -172,15 +177,33 @@ export default function TemplatesPage() {
         <CardContent className="space-y-3">
           {(error || rowError) && <p className="text-sm text-destructive">{error ?? rowError}</p>}
 
+          {templates.length > 0 && (
+            <div className="relative w-full sm:max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search templates…"
+                className="pl-9"
+              />
+            </div>
+          )}
+
           {templates.length === 0 ? (
             <EmptyState
               icon={Layers}
               title="No templates yet"
               description="Save your default settings above to create your first template."
             />
+          ) : filteredTemplates.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="No templates match"
+              description="Try a different search term."
+            />
           ) : (
             <div className="space-y-2">
-              {templates.map((t) => (
+              {filteredTemplates.map((t) => (
                 <HoverLift key={t.id}>
                 <div
                   className="flex flex-col items-start gap-3 rounded-lg border border-border/60 bg-card/95 p-3 transition-shadow duration-150 ease-out hover:shadow-md sm:flex-row sm:items-center sm:justify-between"

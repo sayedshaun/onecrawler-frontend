@@ -16,7 +16,7 @@ import type { GenAISchemaField, GenerativeAISettings } from "@/lib/types";
 
 const FIELD_TYPES: GenAISchemaField["type"][] = ["str", "int", "float", "bool", "list[str]"];
 
-const PROVIDER_MODELS: Record<GenerativeAISettings["provider"], string[]> = {
+export const PROVIDER_MODELS: Record<GenerativeAISettings["provider"], string[]> = {
   openai: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini"],
   google: ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"],
   ollama: ["llama3:8b", "mistral", "qwen2.5:7b"],
