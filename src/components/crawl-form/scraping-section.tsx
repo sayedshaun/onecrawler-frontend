@@ -46,7 +46,7 @@ export function ScrapingSection({
     <div className="space-y-5">
       {showExtraction ? (
         <FieldRow>
-          <Field label="Extraction strategy" description="Heuristic is fast and deterministic; GenAI produces typed output.">
+          <Field label="Extraction strategy" description="Heuristic is fast and deterministic; GenAI produces typed output; Markdownify converts the whole page to Markdown.">
             <Select value={settings.scrapingStrategy} onValueChange={(v) => setStrategy(v as CrawlSettings["scrapingStrategy"])}>
               <SelectTrigger>
                 <SelectValue />
@@ -54,6 +54,7 @@ export function ScrapingSection({
               <SelectContent>
                 <SelectItem value="heuristic">Heuristic</SelectItem>
                 <SelectItem value="genai">GenAI</SelectItem>
+                <SelectItem value="markdownify">Markdownify</SelectItem>
               </SelectContent>
             </Select>
           </Field>

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Globe, Layers, Loader2, Save } from "lucide-react";
+import { Globe, Layers, Loader2, Save } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,11 +30,11 @@ import { FilterChainBuilder } from "@/components/crawl-form/filter-chain-builder
 import { ProxySection } from "@/components/crawl-form/proxy-section";
 import { BrowserSection } from "@/components/crawl-form/browser-section";
 import { LaunchSummary } from "@/components/crawl-form/launch-summary";
-import { SettingsPreview } from "@/components/crawl-form/settings-preview";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
 import { createCrawl, createCrawlFromPayload } from "@/lib/crawls-api";
 import { createTemplate, listTemplates } from "@/lib/templates-api";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useSettingsStore } from "@/store/settings-store";
 import type { CrawlSettings } from "@/lib/types";
 
@@ -85,8 +85,23 @@ export default function NewCrawlPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const [launchSaveAsTemplate, setLaunchSaveAsTemplate] = useState(false);
-  const [launchTemplateName, setLaunchTemplateName] = useState("");
+  // Caps the Launch card's height to match the left column exactly (rather
+  // than the reverse) — the left column only renders one Advanced Settings
+  // tab at a time, so it's naturally shorter than the unfolded settings
+  // summary, which lists every section at once.
+  const leftColumnRef = useRef<HTMLDivElement>(null);
+  const [leftColumnHeight, setLeftColumnHeight] = useState<number | null>(null);
+  const isDesktopLayout = useMediaQuery("(min-width: 1280px)");
+
+  useEffect(() => {
+    const el = leftColumnRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setLeftColumnHeight(entry.contentRect.height);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   function patchSettings(patch: Partial<CrawlSettings>) {
     setSettings((prev) => ({ ...prev, ...patch }));
@@ -95,17 +110,9 @@ export default function NewCrawlPage() {
   async function handleLaunch() {
     const url = normalizeUrl(targetUrl);
     if (!url) return;
-    if (launchSaveAsTemplate && !launchTemplateName.trim()) {
-      setLaunchError("Enter a name for the template, or turn off \"Save as template\".");
-      return;
-    }
     setLaunching(true);
     setLaunchError(null);
     try {
-      if (launchSaveAsTemplate) {
-        await createTemplate(launchTemplateName.trim(), settings);
-        refetchTemplates();
-      }
       const job = await createCrawl(url, settings);
       navigate(`/dashboard/crawls/${job.id}`);
     } catch (err) {
@@ -159,7 +166,7 @@ export default function NewCrawlPage() {
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-      <div className="space-y-6 xl:col-span-2">
+      <div ref={leftColumnRef} className="space-y-6 xl:col-span-2">
         <Card>
           <CardHeader>
             <CardTitle>Target &amp; Strategy</CardTitle>
@@ -333,27 +340,6 @@ export default function NewCrawlPage() {
             </Tabs>
           </CardContent>
         </Card>
-
-        <Card>
-          <button
-            type="button"
-            onClick={() => setPreviewOpen((v) => !v)}
-            className="flex w-full items-center justify-between p-5 text-left"
-          >
-            <div>
-              <CardTitle>Settings summary</CardTitle>
-              <CardDescription className="mt-1">
-                Review the configuration that will be used for this crawl.
-              </CardDescription>
-            </div>
-            <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-150 ease-out ${previewOpen ? "rotate-180" : ""}`} />
-          </button>
-          {previewOpen && (
-            <CardContent className="pt-0">
-              <SettingsPreview targetUrl={normalizeUrl(targetUrl)} settings={settings} />
-            </CardContent>
-          )}
-        </Card>
       </div>
 
       <div>
@@ -364,10 +350,9 @@ export default function NewCrawlPage() {
           launching={launching}
           error={launchError}
           onLaunch={handleLaunch}
-          saveAsTemplate={launchSaveAsTemplate}
-          onSaveAsTemplateChange={setLaunchSaveAsTemplate}
-          templateName={launchTemplateName}
-          onTemplateNameChange={setLaunchTemplateName}
+          previewOpen={previewOpen}
+          onPreviewOpenChange={setPreviewOpen}
+          matchHeight={isDesktopLayout ? leftColumnHeight : null}
         />
       </div>
     </div>

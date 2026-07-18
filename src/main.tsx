@@ -5,6 +5,7 @@ import { MotionConfig } from "framer-motion";
 
 import { ThemeProvider } from "@/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 import App from "@/App";
 
 import "@/index.css";
@@ -19,6 +20,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <BrowserRouter>
             <App />
           </BrowserRouter>
+          <Toaster position="top-right" />
         </TooltipProvider>
       </MotionConfig>
     </ThemeProvider>

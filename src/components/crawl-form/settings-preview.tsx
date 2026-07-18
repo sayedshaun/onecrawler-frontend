@@ -31,7 +31,7 @@ export function SettingsPreview({ targetUrl, settings }: { targetUrl: string; se
         <p className="mt-1 break-all font-mono text-xs text-foreground">{targetUrl || "https://example.com"}</p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4">
         <SummarySection icon={Search} title="Discovery">
           <Setting label="Mode"><Badge>{MODE_LABEL[settings.mode]}</Badge></Setting>
           <Setting label="Strategy">{settings.linkExtractionStrategy === "deep" ? "Deep (recursive)" : "Shallow"}</Setting>
@@ -41,7 +41,13 @@ export function SettingsPreview({ targetUrl, settings }: { targetUrl: string; se
         </SummarySection>
 
         <SummarySection icon={Settings2} title="Scraping">
-          <Setting label="Strategy">{settings.scrapingStrategy === "genai" ? "GenAI" : "Heuristic"}</Setting>
+          <Setting label="Strategy">
+            {settings.scrapingStrategy === "genai"
+              ? "GenAI"
+              : settings.scrapingStrategy === "markdownify"
+                ? "Markdownify"
+                : "Heuristic"}
+          </Setting>
           <Setting label="Output format">{settings.scrapingOutputFormat.toUpperCase()}</Setting>
           <Setting label="Concurrency">{settings.concurrency} workers</Setting>
           <Setting label="Request timeout">{settings.requestTimeout}s</Setting>

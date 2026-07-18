@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { ArrowLeft, Loader2, ScanSearch, SearchX, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -199,7 +200,6 @@ export default function CrawlDetailPage() {
   const [job, setJob] = useState<CrawlDetail | null>(() => (jobId ? jobCache.get(jobId) ?? null : null));
   const [loading, setLoading] = useState(() => !(jobId && jobCache.has(jobId)));
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -233,23 +233,21 @@ export default function CrawlDetailPage() {
 
   async function handleCancel() {
     if (!job) return;
-    setActionError(null);
     try {
       await cancelCrawl(job.id);
       await load();
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : "Failed to cancel crawl.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to cancel crawl.");
     }
   }
 
   async function handleDownload() {
     if (!job) return;
-    setActionError(null);
     setDownloading(true);
     try {
       await downloadCrawlResults(job.id);
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : "Failed to download results.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to download results.");
     } finally {
       setDownloading(false);
     }
@@ -258,12 +256,11 @@ export default function CrawlDetailPage() {
   async function handleDelete() {
     if (!job) return;
     setDeleting(true);
-    setActionError(null);
     try {
       await deleteCrawl(job.id);
       navigate("/dashboard/crawls", { replace: true });
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : "Failed to delete crawl.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to delete crawl.");
       setDeleting(false);
       setDeleteOpen(false);
     }
@@ -271,13 +268,12 @@ export default function CrawlDetailPage() {
 
   async function handleRetry() {
     if (!job) return;
-    setActionError(null);
     setRetrying(true);
     try {
       const next = await retryCrawl(job.id);
       navigate(`/dashboard/crawls/${next.id}`);
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : "Failed to start a new crawl.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to start a new crawl.");
       setRetrying(false);
     }
   }
@@ -344,10 +340,6 @@ export default function CrawlDetailPage() {
           </DialogContent>
         </Dialog>
       </div>
-
-      {actionError && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{actionError}</p>
-      )}
 
       <ProgressPanel
         job={job}

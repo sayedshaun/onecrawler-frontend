@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { LiveDot } from "@/components/shared/live-dot";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { getDashboardOverview } from "@/lib/crawls-api";
@@ -111,6 +112,7 @@ export function SidebarContent() {
               <p className="truncate text-[11px] text-sidebar-foreground/50">{user.email}</p>
             )}
           </div>
+          <ThemeToggle className="h-7 w-7 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground" />
           <button
             type="button"
             onClick={handleLogout}

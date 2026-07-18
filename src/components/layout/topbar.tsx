@@ -4,7 +4,6 @@ import { Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SidebarContent } from "@/components/layout/sidebar";
 
 const TITLES: Record<string, string> = {
@@ -53,10 +52,6 @@ export function TopBar() {
       </Sheet>
 
       <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-
-      <div className="ml-auto flex items-center gap-2">
-        <ThemeToggle />
-      </div>
     </header>
   );
 }

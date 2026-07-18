@@ -83,7 +83,13 @@ export function UsedSettingsPanel({ settings }: { settings: Record<string, unkno
       </SummarySection>
 
       <SummarySection icon={Settings2} title="Scraping">
-        <Setting label="Strategy">{settings.scraping_strategy === "genai" ? "GenAI" : "Heuristic"}</Setting>
+        <Setting label="Strategy">
+          {settings.scraping_strategy === "genai"
+            ? "GenAI"
+            : settings.scraping_strategy === "markdownify"
+              ? "Markdownify"
+              : "Heuristic"}
+        </Setting>
         <Setting label="Output format">{String(settings.scraping_output_format ?? "—").toUpperCase()}</Setting>
         <Setting label="Concurrency">{String(settings.concurrency ?? "—")} workers</Setting>
         <Setting label="Request timeout">{String(settings.request_timeout ?? "—")}s</Setting>

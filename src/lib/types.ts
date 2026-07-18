@@ -2,7 +2,7 @@
 // so the future FastAPI backend can accept this payload close to as-is.
 
 export type LinkExtractionStrategy = "shallow" | "deep";
-export type ScrapingStrategy = "heuristic" | "genai";
+export type ScrapingStrategy = "heuristic" | "genai" | "markdownify";
 export type ScrapingOutputFormat = "markdown" | "json" | "xml" | "xmltei";
 export type ProxyRotationMethod = "round_robin" | "random";
 export type GenAIProvider = "openai" | "google" | "ollama";
@@ -133,6 +133,11 @@ export interface ThroughputPoint {
   pagesPerSec: number;
 }
 
+export interface DiscoveryPoint {
+  t: number;
+  count: number;
+}
+
 // Mirrors backend CrawlJobSummaryOut (src/api/v1/crawler/*/schema.py)
 export interface CrawlSummary {
   id: string;
@@ -156,6 +161,7 @@ export interface CrawlSummary {
 export interface CrawlDetail extends CrawlSummary {
   settings: Record<string, unknown>;
   throughputHistory: ThroughputPoint[];
+  discoveryHistory: DiscoveryPoint[];
 }
 
 export interface PaginatedResponse<T> {

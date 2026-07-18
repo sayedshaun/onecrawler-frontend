@@ -7,8 +7,8 @@
     /* Warm "cream / paper" light theme. Neutrals carry a warm ivory tint
        (hue ~40) instead of cool gray — the page is a soft cream, cards are a
        warm white that lifts off it, and text is a warm near-black rather than
-       blue-black. The indigo brand accent stays as the single cool pop of
-       colour against the warm ground. */
+       blue-black. The copper/orange brand accent (hue ~20, matching dark
+       mode) is the single saturated pop of colour against the warm ground. */
     --background: 42 38% 96%;
     --foreground: 28 18% 13%;
 
@@ -18,7 +18,7 @@
     --popover: 40 50% 99%;
     --popover-foreground: 28 18% 13%;
 
-    --primary: 244 84% 62%;
+    --primary: 20 85% 50%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 42 30% 93%;
@@ -41,15 +41,19 @@
 
     --border: 40 24% 86%;
     --input: 40 24% 86%;
-    --ring: 244 84% 62%;
+    --ring: 20 85% 50%;
 
-    /* JSON viewer syntax palette — brand-cohesive tokens (indigo keys, green
-       strings, amber numbers, violet atoms) instead of raw editor theme colors. */
-    --json-key: 244 76% 54%;
+    /* JSON viewer syntax palette — brand-cohesive tokens (copper keys, green
+       strings, amber numbers, violet atoms) instead of raw editor theme colors.
+       Numbers sit on the `--warning` hue (36) rather than copper's own hue
+       (20) so keys and numbers stay visually distinct. */
+    --json-key: 20 80% 42%;
     --json-string: 152 52% 32%;
-    --json-number: 25 78% 42%;
+    --json-number: 36 85% 38%;
     --json-atom: 280 55% 50%;
     --json-punct: 35 8% 46%;
+
+    --gradient-to: 350 72% 52%;
 
     --radius: 0.75rem;
 
@@ -60,33 +64,31 @@
   }
 
   .dark {
-    /* "Cool & crisp" dark theme. A deep, cool near-black (hue ~225, blue hint)
-       rather than a warm charcoal — text is a clean cool white, not cream. The
-       lightness ladder (background < card < popover < accent) is deliberate and
-       monotonic so every elevation step reads clearly under the glass surfaces.
-       Accent colours are re-hued to the brand family (243 indigo / 152 green /
-       38 amber) and brightened for legibility on the dark ground, so the product
-       reads as one consistent indigo-branded system across light and dark. */
-    --background: 225 30% 8%;
-    --foreground: 210 25% 97%;
+    /* Neutral near-black dark theme — almost hue-less (a hint of cool tint to
+       avoid flat gray banding), "OLED true black" feel. No competing
+       background hue, so the copper/orange brand accent (hue ~22) pops
+       against it, deliberately off-hue from the amber `--warning` token (38)
+       so status colors stay unambiguous. */
+    --background: 240 4% 6%;
+    --foreground: 0 0% 98%;
 
-    --card: 225 24% 10%;
-    --card-foreground: 210 25% 97%;
+    --card: 240 3% 9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 225 24% 12%;
-    --popover-foreground: 210 25% 97%;
+    --popover: 240 3% 11%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 245 90% 70%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 22 88% 58%;
+    --primary-foreground: 20 40% 8%;
 
-    --secondary: 225 20% 15%;
-    --secondary-foreground: 210 25% 97%;
+    --secondary: 240 3% 14%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 225 20% 15%;
-    --muted-foreground: 219 16% 66%;
+    --muted: 240 3% 14%;
+    --muted-foreground: 240 4% 65%;
 
-    --accent: 225 20% 19%;
-    --accent-foreground: 210 25% 97%;
+    --accent: 240 3% 18%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 68% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -97,20 +99,22 @@
     --warning: 38 84% 60%;
     --warning-foreground: 20 14% 8%;
 
-    --border: 225 18% 17%;
-    --input: 225 18% 17%;
-    --ring: 245 90% 70%;
+    --border: 240 3% 16%;
+    --input: 240 3% 16%;
+    --ring: 22 88% 58%;
 
-    --json-key: 245 90% 78%;
+    --json-key: 22 88% 74%;
     --json-string: 152 52% 62%;
     --json-number: 38 84% 68%;
     --json-atom: 282 70% 76%;
     --json-punct: 219 16% 58%;
 
-    --sidebar: 226 34% 6%;
-    --sidebar-foreground: 214 18% 88%;
-    --sidebar-border: 225 22% 12%;
-    --sidebar-accent: 225 20% 19%;
+    --gradient-to: 350 78% 66%;
+
+    --sidebar: 240 4% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-border: 240 3% 11%;
+    --sidebar-accent: 240 3% 18%;
   }
 }
 
@@ -228,7 +232,8 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-400;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--gradient-to)));
   }
 
   .card-glow {

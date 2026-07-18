@@ -21,7 +21,7 @@ export function AuthLayout({
 }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
-      {/* Fixed deep-indigo brand panel — pinned dark in BOTH themes (not the
+      {/* Fixed deep near-black brand panel — pinned dark in BOTH themes (not the
           theme's --foreground, which flips to near-white in dark mode). */}
       <div className="relative hidden flex-col justify-between overflow-hidden bg-[#0b0e18] p-10 text-white lg:flex">
         <div
