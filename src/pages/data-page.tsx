@@ -170,7 +170,7 @@ export default function DataPage() {
             </Select>
           </div>
 
-          <div className="glass-inset flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="border border-border bg-muted/40 flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {selectedIds.size > 0 ? (
                 <span>

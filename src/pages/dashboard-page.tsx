@@ -17,7 +17,6 @@ import { ScrapedPerCrawlChart } from "@/components/dashboard/scraped-per-crawl-c
 import { ExtractionOutcome } from "@/components/dashboard/extraction-outcome";
 import { CrawlsTable } from "@/components/shared/crawls-table";
 import { EmptyState } from "@/components/shared/empty-state";
-import { HoverLift } from "@/components/shared/hover-lift";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { getDashboardOverview, listCrawls } from "@/lib/crawls-api";
 import { formatNumber } from "@/lib/utils";
@@ -120,34 +119,29 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <HoverLift className="xl:col-span-2">
-          <Card className="h-full transition-shadow duration-150 ease-out hover:shadow-md">
-            <CardHeader>
-              <CardTitle>Extraction Volume</CardTitle>
-              <CardDescription>Pages scraped vs. failed across your latest crawls</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrapedPerCrawlChart jobs={recent} />
-            </CardContent>
-          </Card>
-        </HoverLift>
+        <Card className="h-full xl:col-span-2">
+          <CardHeader>
+            <CardTitle>Extraction Volume</CardTitle>
+            <CardDescription>Pages scraped vs. failed across your latest crawls</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrapedPerCrawlChart jobs={recent} />
+          </CardContent>
+        </Card>
 
-        <HoverLift>
-          <Card className="h-full transition-shadow duration-150 ease-out hover:shadow-md">
-            <CardHeader>
-              <CardTitle>Crawl Status</CardTitle>
-              <CardDescription>All jobs, by current status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <StatusBreakdownChart jobCounts={overview?.jobCounts ?? DEFAULT_JOB_COUNTS} />
-            </CardContent>
-          </Card>
-        </HoverLift>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Crawl Status</CardTitle>
+            <CardDescription>All jobs, by current status</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <StatusBreakdownChart jobCounts={overview?.jobCounts ?? DEFAULT_JOB_COUNTS} />
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <HoverLift className="xl:col-span-2">
-          <Card className="h-full transition-shadow duration-150 ease-out hover:shadow-md">
+        <Card className="h-full xl:col-span-2">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Recent Crawls</CardTitle>
@@ -175,24 +169,21 @@ export default function DashboardPage() {
               />
             )}
           </CardContent>
-          </Card>
-        </HoverLift>
+        </Card>
 
-        <HoverLift>
-          <Card className="h-full transition-shadow duration-150 ease-out hover:shadow-md">
-            <CardHeader>
-              <CardTitle>Extraction Outcome</CardTitle>
-              <CardDescription>Every discovered URL, by result</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ExtractionOutcome
-                discovered={overview?.urlsDiscovered ?? 0}
-                scraped={totalScraped}
-                failed={totalFailed}
-              />
-            </CardContent>
-          </Card>
-        </HoverLift>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Extraction Outcome</CardTitle>
+            <CardDescription>Every discovered URL, by result</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ExtractionOutcome
+              discovered={overview?.urlsDiscovered ?? 0}
+              scraped={totalScraped}
+              failed={totalFailed}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

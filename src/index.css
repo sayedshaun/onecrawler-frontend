@@ -132,29 +132,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
-    position: relative;
-  }
-  /* Soft color blobs behind everything — glass surfaces (cards, sidebar, dialogs)
-     have nothing to refract/blur over a flat fill, so this gives them something.
-     Rendered on a fixed, isolated pseudo-element (not `background-attachment:
-     fixed` on body) so it never repaints or gets re-sampled by backdrop-blur as
-     the page scrolls — a static layer the compositor can leave completely alone. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      radial-gradient(ellipse 55% 40% at 12% -10%, hsl(var(--primary) / 0.16), transparent),
-      radial-gradient(ellipse 45% 35% at 100% 0%, hsl(var(--success) / 0.12), transparent),
-      radial-gradient(ellipse 50% 40% at 50% 115%, hsl(var(--warning) / 0.08), transparent);
-  }
-  .dark body::before {
-    background-image:
-      radial-gradient(ellipse 55% 40% at 12% -10%, hsl(var(--primary) / 0.22), transparent),
-      radial-gradient(ellipse 45% 35% at 100% 0%, hsl(var(--success) / 0.14), transparent),
-      radial-gradient(ellipse 50% 40% at 50% 115%, hsl(var(--warning) / 0.1), transparent);
   }
   ::selection {
     @apply bg-primary/25;
@@ -165,41 +142,6 @@
    framer-motion is handled separately via <MotionConfig reducedMotion="user">;
    this covers every CSS transition/animation (Tailwind utilities, keyframes,
    Radix overlays, spinners). Kept outside @layer so the !important always wins. */
-/* backdrop-filter is by far the single most expensive CSS property for a
-   mobile GPU to composite — every frosted "glass" surface (cards, menus,
-   sheets, the sticky headers) forces the browser to re-blur whatever is
-   behind it. On a touch device that cost is paid on every scroll frame for
-   every visible glass surface at once, which is what actually caused the
-   "heavy" scroll feel — reducing the blur radius alone wasn't enough. Touch
-   devices get a flat, more opaque fill instead; pointer:fine (mouse/trackpad,
-   i.e. desktop) keeps the real frosted effect. Also gated on a narrow
-   viewport (not just pointer:coarse) so it still kicks in when testing via a
-   resized desktop browser window, where the pointer stays "fine". */
-@media (pointer: coarse), (max-width: 767px) {
-  [class*="backdrop-blur"],
-  .glass,
-  .glass-menu,
-  .glass-inset {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-  .glass {
-    background-color: hsl(var(--card) / 0.97);
-  }
-  .dark .glass {
-    background-color: hsl(var(--card) / 0.94);
-  }
-  .glass-menu {
-    background-color: hsl(var(--popover) / 0.97);
-  }
-  .dark .glass-menu {
-    background-color: hsl(var(--popover) / 0.94);
-  }
-  .glass-inset {
-    background-color: hsl(var(--muted) / 0.65);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -234,69 +176,5 @@
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--gradient-to)));
-  }
-
-  .card-glow {
-    box-shadow:
-      0 1px 2px hsl(var(--foreground) / 0.03),
-      0 8px 24px -12px hsl(var(--primary) / 0.15);
-  }
-}
-
-@layer components {
-  /* ── Liquid-glass surface system ───────────────────────────────────────────
-     One source of truth for every frosted surface. Each class layers:
-       • a translucent tinted fill (so the body colour-blobs show through),
-       • backdrop blur + saturation (the "frosted" refraction),
-       • a hairline border, and
-       • a stacked shadow whose first inset line is a lit top edge — the
-         highlight that makes glass read as a physical pane rather than a tint.
-     Tuned separately for light/dark because the lit edge is white-ish on dark
-     and dark-ish on light. */
-
-  /* Primary elevated panel: cards, dialogs, sheets, sticky bars. A layered,
-     soft shadow ladder (contact + mid + ambient) gives real depth so surfaces
-     read as considered panes rather than flat fills. */
-  .glass {
-    @apply border border-border/70 backdrop-blur-md backdrop-saturate-150;
-    background-color: hsl(var(--card) / 0.72);
-    box-shadow:
-      0 1px 2px hsl(30 30% 18% / 0.06),
-      0 4px 10px -3px hsl(30 30% 18% / 0.08),
-      0 16px 36px -14px hsl(30 28% 20% / 0.13);
-  }
-  .dark .glass {
-    background-color: hsl(var(--card) / 0.62);
-    box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.06),
-      0 2px 6px hsl(0 0% 0% / 0.3),
-      0 14px 30px -10px hsl(0 0% 0% / 0.55),
-      0 28px 60px -28px hsl(0 0% 0% / 0.7);
-  }
-
-  /* Floating menus / tooltips: a touch more opaque than .glass so small text
-     stays legible over busy content, with a tighter drop shadow. */
-  .glass-menu {
-    @apply border border-border/60 backdrop-blur-xl backdrop-saturate-150;
-    background-color: hsl(var(--popover) / 0.8);
-    box-shadow:
-      inset 0 1px 0 0 hsl(var(--foreground) / 0.05),
-      0 10px 30px -12px hsl(var(--foreground) / 0.28);
-  }
-  .dark .glass-menu {
-    background-color: hsl(var(--popover) / 0.72);
-    box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.06),
-      0 14px 34px -12px hsl(0 0% 0% / 0.66);
-  }
-
-  /* Recessed inline glass for sub-panels nested inside a card (code blocks,
-     summary rows, filter bars) — frosted inset rather than a flat fill. */
-  .glass-inset {
-    @apply border border-border/60 backdrop-blur-md;
-    background-color: hsl(var(--muted) / 0.4);
-  }
-  .dark .glass-inset {
-    background-color: hsl(var(--muted) / 0.35);
   }
 }

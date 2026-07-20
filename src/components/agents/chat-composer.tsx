@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { Square, ArrowUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ interface ChatComposerProps {
   isStreaming: boolean;
   disabled?: boolean;
   placeholder?: string;
+  autoFocus?: boolean;
 }
 
 export function ChatComposer({
@@ -22,8 +23,23 @@ export function ChatComposer({
   isStreaming,
   disabled,
   placeholder = "Tell the agent what to crawl, e.g. “Crawl example.com's blog and extract titles + dates”",
+  autoFocus,
 }: ChatComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Grows with the content instead of scrolling inside a fixed one-line box —
+  // reset to "auto" first so shrinking (e.g. after clearing on send) measures
+  // the new, smaller scrollHeight rather than the previous taller one.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+
+  useEffect(() => {
+    if (autoFocus) textareaRef.current?.focus();
+  }, [autoFocus]);
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -33,7 +49,7 @@ export function ChatComposer({
   }
 
   return (
-    <div className="flex items-end gap-2 rounded-xl border border-border bg-background/50 p-2 shadow-sm">
+    <div className="flex items-end gap-2 rounded-3xl border border-border bg-background p-2 pl-4">
       <Textarea
         ref={textareaRef}
         value={value}
@@ -42,16 +58,24 @@ export function ChatComposer({
         placeholder={placeholder}
         rows={1}
         disabled={disabled}
-        className="min-h-9 max-h-40 flex-1 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
+        className="min-h-9 max-h-40 flex-1 resize-none border-0 bg-transparent px-0 py-2 focus-visible:ring-0"
       />
       {isStreaming ? (
-        <Button type="button" size="icon" variant="secondary" onClick={onStop} aria-label="Stop response">
+        <Button
+          type="button"
+          size="icon"
+          variant="secondary"
+          className="shrink-0 rounded-full"
+          onClick={onStop}
+          aria-label="Stop response"
+        >
           <Square className="h-3.5 w-3.5 fill-current" />
         </Button>
       ) : (
         <Button
           type="button"
           size="icon"
+          className="shrink-0 rounded-full"
           onClick={onSubmit}
           disabled={disabled || !value.trim()}
           aria-label="Send message"

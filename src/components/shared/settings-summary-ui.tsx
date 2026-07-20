@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function SummarySection({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: ReactNode }) {
   return (
-    <section className="glass-inset rounded-lg p-4">
+    <section className="border border-border bg-muted/40 rounded-lg p-4">
       <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon className="h-4 w-4 text-primary" />
         {title}

@@ -66,7 +66,7 @@ export function JsonCodeViewer({ data, className }: { data: unknown; className?:
   }
 
   return (
-    <div className={cn("overflow-hidden rounded-xl border border-border bg-card shadow-sm", className)}>
+    <div className={cn("overflow-hidden rounded-xl border border-border bg-card", className)}>
       <div className="flex items-center justify-between border-b border-border/70 bg-muted/40 px-3 py-2">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Braces className="h-3.5 w-3.5 text-primary" />

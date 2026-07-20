@@ -3,7 +3,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 
-import { cn, GLASS_CLASS } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const Sheet = DialogPrimitive.Root;
 const SheetTrigger = DialogPrimitive.Trigger;
@@ -28,7 +28,7 @@ SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 // Same fade+zoom treatment as Dialog/Tooltip/Select/Dropdown — every overlay in the
 // app enters/exits identically, regardless of which edge a given sheet docks to.
 const sheetVariants = cva(
-  `fixed z-50 flex flex-col gap-4 overflow-hidden p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 ${GLASS_CLASS}`,
+  "fixed z-50 flex flex-col gap-4 overflow-hidden border border-border bg-card p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
   {
     variants: {
       side: {

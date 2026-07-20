@@ -9,10 +9,9 @@ import { transitionPage } from "@/lib/motion";
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const reduceMotion = useReducedMotion();
-  // Touch devices (phones/tablets) get no page-enter animation. Animating
-  // opacity/transform over the translucent backdrop-blur surfaces makes mobile
-  // GPUs briefly re-composite them, which reads as a color "shimmer" on every
-  // navigation — worst in dark mode. Desktop pointers keep the subtle transition.
+  // Touch devices (phones/tablets) get no page-enter animation — animating
+  // opacity/transform is more likely to visibly stutter on a mobile GPU.
+  // Desktop pointers keep the subtle transition.
   const coarsePointer = useMediaQuery("(pointer: coarse)");
   const animatePages = !reduceMotion && !coarsePointer;
 

@@ -1,4 +1,4 @@
-import { MessageSquarePlus } from "lucide-react";
+import { MessageSquarePlus, MessagesSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,21 +23,34 @@ export function ConversationHistory({ conversations, activeId, onSelect, onNew }
       </Button>
 
       <ScrollArea className="-mx-1 flex-1 px-1">
-        <div className="flex flex-col gap-0.5">
-          {conversations.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => onSelect(c.id)}
-              className={cn(
-                "truncate rounded-lg px-2.5 py-2 text-left text-sm transition-colors duration-150 ease-out hover:bg-accent",
-                c.id === activeId ? "bg-accent text-accent-foreground" : "text-muted-foreground",
-              )}
-            >
-              {c.title}
-            </button>
-          ))}
-        </div>
+        {conversations.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 px-3 py-10 text-center">
+            <MessagesSquare className="h-5 w-5 text-muted-foreground/60" />
+            <p className="text-xs text-muted-foreground">Your conversations will show up here.</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-0.5">
+            {conversations.map((c) => {
+              const active = c.id === activeId;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => onSelect(c.id)}
+                  className={cn(
+                    "relative rounded-lg px-2.5 py-2 text-left transition-colors duration-150 ease-out hover:bg-accent",
+                    active ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {active && (
+                    <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-primary" />
+                  )}
+                  <p className="truncate text-sm">{c.title}</p>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

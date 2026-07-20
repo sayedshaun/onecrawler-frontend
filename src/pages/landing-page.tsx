@@ -83,7 +83,7 @@ const STEPS = [
 
 function PublicNav() {
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-background">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -117,7 +117,7 @@ function PublicNav() {
 
 function HeroPreviewCard() {
   return (
-    <div className="card-glow glass relative rounded-2xl p-4">
+    <div className="border border-border bg-card relative rounded-2xl p-4">
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
@@ -136,14 +136,14 @@ function HeroPreviewCard() {
           { label: "Scraped", value: "958" },
           { label: "Failed", value: "12" },
         ].map((stat) => (
-          <div key={stat.label} className="glass-inset rounded-lg p-2 sm:p-3">
+          <div key={stat.label} className="border border-border bg-muted/40 rounded-lg p-2 sm:p-3">
             <p className="text-base font-semibold tabular-nums text-foreground sm:text-lg">{stat.value}</p>
             <p className="text-[11px] text-muted-foreground">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="glass-inset space-y-2 rounded-lg p-3 font-mono text-[11px] text-muted-foreground">
+      <div className="border border-border bg-muted/40 space-y-2 rounded-lg p-3 font-mono text-[11px] text-muted-foreground">
         <p>
           <span className="text-success">✓</span> Extracted /blog/scaling-crawlers
         </p>
@@ -203,7 +203,7 @@ function LiveDashboardShowcase() {
         </div>
 
         {/* App-window mock of the live dashboard */}
-        <div className="glass mx-auto mt-12 max-w-5xl rounded-2xl p-2 sm:p-3">
+        <div className="border border-border bg-card mx-auto mt-12 max-w-5xl rounded-2xl p-2 sm:p-3">
           {/* Window chrome */}
           <div className="flex items-center gap-2 px-2 py-2">
             <div className="flex items-center gap-1.5">
@@ -226,7 +226,7 @@ function LiveDashboardShowcase() {
             {/* Stat tiles */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {SHOWCASE_STATS.map(({ icon: Icon, label, value }) => (
-                <div key={label} className="glass rounded-lg p-3">
+                <div key={label} className="border border-border bg-card rounded-lg p-3">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Icon className="h-3.5 w-3.5" />
                     <span className="text-[10px] font-medium uppercase tracking-wide">{label}</span>
@@ -238,7 +238,7 @@ function LiveDashboardShowcase() {
 
             {/* Throughput graph + status donut */}
             <div className="grid gap-4 lg:grid-cols-3">
-              <div className="glass rounded-xl p-4 lg:col-span-2">
+              <div className="border border-border bg-card rounded-xl p-4 lg:col-span-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-foreground">Crawl throughput</p>
@@ -269,7 +269,7 @@ function LiveDashboardShowcase() {
                 </div>
               </div>
 
-              <div className="glass rounded-xl p-4">
+              <div className="border border-border bg-card rounded-xl p-4">
                 <p className="text-sm font-semibold text-foreground">Status</p>
                 <p className="text-xs text-muted-foreground">Pages by outcome</p>
                 <div className="relative mx-auto mt-2 h-32 w-full">
@@ -317,7 +317,7 @@ function LiveDashboardShowcase() {
             </div>
 
             {/* Progress */}
-            <div className="glass rounded-xl p-4">
+            <div className="border border-border bg-card rounded-xl p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-foreground">Crawling acme.com</span>
                 <span className="tabular-nums text-muted-foreground">958 of 1,204 pages</span>
@@ -326,7 +326,7 @@ function LiveDashboardShowcase() {
             </div>
 
             {/* Live log */}
-            <div className="glass-inset space-y-1.5 rounded-xl p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">
+            <div className="border border-border bg-muted/40 space-y-1.5 rounded-xl p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">
               <p>
                 <span className="text-success">✓</span> Extracted /blog/scaling-crawlers
                 <span className="text-muted-foreground/50"> · 1.2s</span>
@@ -421,7 +421,7 @@ export default function LandingPage() {
 
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="glass rounded-xl p-5">
+              <div key={title} className="border border-border bg-card rounded-xl p-5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="h-4.5 w-4.5" />
                 </div>
@@ -454,7 +454,7 @@ export default function LandingPage() {
 
       <section className="border-t border-border py-20">
         <div className="mx-auto w-full max-w-7xl px-4 lg:px-8">
-          <div className="card-glow glass flex flex-col items-center gap-6 rounded-2xl px-6 py-14 text-center">
+          <div className="border border-border bg-card flex flex-col items-center gap-6 rounded-2xl px-6 py-14 text-center">
             <Zap className="h-8 w-8 text-primary" />
             <h2 className="max-w-xl text-3xl font-semibold tracking-tight text-foreground">
               Ready to start crawling smarter?

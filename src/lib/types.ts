@@ -265,10 +265,13 @@ export interface AgentSettings {
 }
 
 // A step in the agent's visible trace mid-turn — a tool it decided to call
-// ("call") or that tool's outcome ("result"). `write_todos` calls/results are
-// the agent's own planning tool and are flagged via `isPlanning` so the UI can
-// render them as "planning" rather than a generic "action". `jobId` links a
-// result back into the existing crawl detail route when one is found in it.
+// ("call") or that tool's outcome ("result"). `id` is the backend's tool-call
+// id, shared by a call and its eventual result, so the UI can update one
+// in-place chip (spinner -> checkmark) instead of rendering two separate
+// entries. `write_todos` calls/results are the agent's own planning tool and
+// are flagged via `isPlanning` so the UI can render them as "planning" rather
+// than a generic "action". `jobId` links a result back into the existing
+// crawl detail route when one is found in it.
 export type AgentTraceStepKind = "call" | "result";
 
 export interface AgentTraceStep {

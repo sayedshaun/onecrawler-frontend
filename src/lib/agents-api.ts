@@ -114,7 +114,7 @@ function mapFrame(eventType: string, payload: unknown): AgentStreamEvent[] {
     return message.tool_calls.map((call) => ({
       type: "step",
       step: {
-        id: generateId(),
+        id: call.id || generateId(),
         kind: "call",
         toolName: call.name,
         isPlanning: call.name === PLANNING_TOOL_NAME,
@@ -128,7 +128,10 @@ function mapFrame(eventType: string, payload: unknown): AgentStreamEvent[] {
       {
         type: "step",
         step: {
-          id: generateId(),
+          // Shares its id with the matching "call" step (the tool_call_id the
+          // backend echoes back) so the UI updates that chip in place rather
+          // than appending a second one for the same tool invocation.
+          id: message.tool_call_id || generateId(),
           kind: "result",
           toolName: name,
           isPlanning: name === PLANNING_TOOL_NAME,

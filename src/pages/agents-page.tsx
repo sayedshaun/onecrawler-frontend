@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bot, History, Loader2, Settings } from "lucide-react";
+import { Bot, FileSearch, History, ListChecks, Map, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 import { ChatComposer } from "@/components/agents/chat-composer";
 import { ChatMessage } from "@/components/agents/chat-message";
 import { ConversationHistory } from "@/components/agents/conversation-history";
-import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -19,7 +18,7 @@ import {
   streamAgentChat,
 } from "@/lib/agents-api";
 import { ApiError } from "@/lib/api";
-import { generateId } from "@/lib/utils";
+import { formatRelativeTime, generateId } from "@/lib/utils";
 import type { AgentConversationSummary, AgentMessage, AgentTraceStep } from "@/lib/types";
 
 // Appends a token delta to the message's trailing text part, or starts a new
@@ -37,27 +36,43 @@ function appendToken(message: AgentMessage, content: string): AgentMessage {
   return { ...message, parts, pending: false };
 }
 
+// A "result" step shares its id with the "call" step it resolves — update
+// that chip in place (spinner -> checkmark) instead of appending a second,
+// separate entry for the same tool invocation.
 function appendStep(message: AgentMessage, step: AgentTraceStep): AgentMessage {
+  const existingIndex = message.parts.findIndex((p) => p.kind === "step" && p.id === step.id);
+  if (existingIndex !== -1) {
+    const parts = message.parts.slice();
+    parts[existingIndex] = { kind: "step", id: step.id, step };
+    return { ...message, parts, pending: false };
+  }
   return { ...message, parts: [...message.parts, { kind: "step", id: step.id, step }], pending: false };
 }
 
 const SUGGESTIONS = [
-  "Crawl example.com and extract every blog post title and publish date",
-  "Start a sitemap crawl of docs.example.com limited to 200 URLs",
-  "What's the status of my most recent crawl?",
+  { icon: FileSearch, text: "Crawl example.com and extract every blog post title and publish date" },
+  { icon: Map, text: "Start a sitemap crawl of docs.example.com limited to 200 URLs" },
+  { icon: ListChecks, text: "What's the status of my most recent crawl?" },
 ];
 
 export default function AgentsPage() {
   const [conversations, setConversations] = useState<AgentConversationSummary[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
-  const [loadingConversation, setLoadingConversation] = useState(false);
+  // Starts true so the first paint shows the loading spinner instead of a
+  // flash of the empty-state greeting while the initial conversation list
+  // fetch is still in flight.
+  const [loadingConversation, setLoadingConversation] = useState(true);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
+  // Messages restored from history shouldn't replay their entrance animation
+  // every time a conversation loads (or the tab is revisited) — only ones
+  // actually streamed in live during this session should fade/slide in.
+  const historicalIdsRef = useRef<Set<string>>(new Set());
 
   const { data: settings } = usePolledResource(getAgentSettings, { cacheKey: "agents:settings" });
   const isConfigured = settings?.llm.hasKey ?? false;
@@ -73,12 +88,17 @@ export default function AgentsPage() {
         const id = list[0]?.id ?? generateId();
         setActiveId(id);
         activeIdRef.current = id;
-        if (list[0]) loadConversation(list[0].id);
+        if (list[0]) {
+          loadConversation(list[0].id);
+        } else {
+          setLoadingConversation(false);
+        }
       })
       .catch(() => {
         const id = generateId();
         setActiveId(id);
         activeIdRef.current = id;
+        setLoadingConversation(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -96,6 +116,7 @@ export default function AgentsPage() {
     getAgentConversation(id)
       .then(({ messages: loaded }) => {
         if (activeIdRef.current !== id) return;
+        historicalIdsRef.current = new Set(loaded.map((m) => m.id));
         setMessages(loaded);
       })
       .catch((err) => {
@@ -116,6 +137,7 @@ export default function AgentsPage() {
     setActiveId(id);
     activeIdRef.current = id;
     setMessages([]);
+    historicalIdsRef.current = new Set();
     setHistoryOpen(false);
     loadConversation(id);
   }
@@ -127,6 +149,7 @@ export default function AgentsPage() {
     setActiveId(id);
     activeIdRef.current = id;
     setMessages([]);
+    historicalIdsRef.current = new Set();
     setLoadingConversation(false);
     setHistoryOpen(false);
   }
@@ -208,9 +231,12 @@ export default function AgentsPage() {
     );
   }
 
+  const hasMessages = messages.length > 0;
+  const activeConversation = conversations.find((c) => c.id === activeId);
+
   return (
-    <div className="flex h-[calc(100dvh-9rem)] min-h-[28rem] gap-4">
-      <aside className="hidden w-64 shrink-0 rounded-xl border border-border bg-card/40 p-3 md:block">
+    <div className="-mx-4 -my-6 flex h-[calc(100dvh-3.5rem)] lg:-mx-8 lg:-my-8">
+      <aside className="hidden w-64 shrink-0 border-r border-border p-3 md:block">
         <ConversationHistory conversations={conversations} activeId={activeId} onSelect={selectConversation} onNew={handleNewChat} />
       </aside>
 
@@ -226,87 +252,93 @@ export default function AgentsPage() {
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <div className="flex items-start gap-2">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className="mt-0.5 shrink-0 md:hidden"
+            className="shrink-0 md:hidden"
             onClick={() => setHistoryOpen(true)}
             aria-label="Open chat history"
           >
             <History className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">Agent</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Describe what you want crawled — the agent can configure and run crawls for you.
-            </p>
-          </div>
+          <span className="text-sm font-medium text-foreground">
+            {settings?.llm.model || "Agent"}
+          </span>
+          {hasMessages && activeConversation && (
+            <span className="text-xs text-muted-foreground">
+              · {formatRelativeTime(new Date(activeConversation.updatedAt))}
+            </span>
+          )}
         </div>
 
-        <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/40">
-          <ScrollArea className="flex-1">
-            <div className="flex flex-col gap-4 p-4">
-              {loadingConversation ? (
-                <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading conversation…
+        {loadingConversation ? (
+          <div className="flex-1" />
+        ) : !hasMessages ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Bot className="h-6 w-6" />
+            </div>
+            {!isConfigured ? (
+              <>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">Configure the agent to get started</h2>
+                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                    It needs its own LLM provider and API key before it can plan and run crawls for you.
+                  </p>
                 </div>
-              ) : messages.length === 0 ? (
-                !isConfigured ? (
-                  <EmptyState
-                    icon={Bot}
-                    title="Configure the agent to get started"
-                    description="It needs its own LLM provider and API key before it can plan and run crawls for you."
-                    action={
-                      <Button size="sm" asChild>
-                        <Link to="/dashboard/settings">
-                          <Settings className="h-3.5 w-3.5" />
-                          Configure agent
-                        </Link>
-                      </Button>
-                    }
-                  />
-                ) : (
-                  <EmptyState
-                    icon={Bot}
-                    title="Ask the agent to run a crawl"
-                    description="Describe a target site and what to extract, in plain language."
-                    action={
-                      <div className="flex flex-col gap-2 pt-2">
-                        {SUGGESTIONS.map((s) => (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() => send(s)}
-                            className="rounded-lg border border-border bg-background/50 px-3 py-1.5 text-left text-xs text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground"
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    }
-                  />
-                )
-              ) : (
-                messages.map((m) => <ChatMessage key={m.id} message={m} />)
-              )}
+                <Button size="sm" asChild>
+                  <Link to="/dashboard/settings">
+                    <Settings className="h-3.5 w-3.5" />
+                    Configure agent
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-foreground">What are we crawling today?</h2>
+                <div className="flex w-full max-w-2xl flex-col gap-2">
+                  {SUGGESTIONS.map((s) => (
+                    <button
+                      key={s.text}
+                      type="button"
+                      onClick={() => send(s.text)}
+                      className="flex items-center gap-2.5 rounded-2xl border border-border bg-background px-4 py-2.5 text-left text-sm text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <s.icon className="h-4 w-4 shrink-0 text-primary" />
+                      {s.text}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <ScrollArea className="flex-1">
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6">
+              {messages.map((m) => (
+                <ChatMessage key={m.id} message={m} animate={!historicalIdsRef.current.has(m.id)} />
+              ))}
               <div ref={scrollAnchorRef} />
             </div>
           </ScrollArea>
+        )}
 
-          <div className="border-t border-border p-3">
-            <ChatComposer
-              value={input}
-              onChange={setInput}
-              onSubmit={() => send(input)}
-              onStop={handleStop}
-              isStreaming={isStreaming}
-              disabled={!isConfigured}
-              placeholder={isConfigured ? undefined : "Configure the agent in Settings to start chatting"}
-            />
-          </div>
+        <div className="mx-auto w-full max-w-2xl px-4 pb-4 pt-2">
+          <ChatComposer
+            value={input}
+            onChange={setInput}
+            onSubmit={() => send(input)}
+            onStop={handleStop}
+            isStreaming={isStreaming}
+            disabled={!isConfigured}
+            placeholder={isConfigured ? undefined : "Configure the agent in Settings to start chatting"}
+            autoFocus={isConfigured && !isStreaming && !loadingConversation}
+          />
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            The agent can make mistakes — check crawl results before relying on them.
+          </p>
         </div>
       </div>
     </div>

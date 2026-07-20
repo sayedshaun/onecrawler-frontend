@@ -293,7 +293,7 @@ function ContentBody({ detail }: { detail: DataItemDetail }) {
 
   if (detail.format === "markdown") {
     return (
-      <div className="glass-inset rounded-lg p-5">
+      <div className="border border-border bg-muted/40 rounded-lg p-5">
         <div className="prose prose-sm max-w-none sm:prose-base">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
         </div>
@@ -309,7 +309,7 @@ function RawContentBlock({ content }: { content: string }) {
   const isLong = content.length > 800;
 
   return (
-    <div className="glass-inset rounded-lg">
+    <div className="border border-border bg-muted/40 rounded-lg">
       <pre
         className={cn(
           "whitespace-pre-wrap break-words p-4 font-mono text-xs leading-relaxed text-foreground/90",

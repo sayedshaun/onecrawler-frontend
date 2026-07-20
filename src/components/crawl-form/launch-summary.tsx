@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SettingsPreview } from "@/components/crawl-form/settings-preview";
-import { GLASS_CLASS } from "@/lib/utils";
 import type { CrawlSettings } from "@/lib/types";
 
 const MODE_LABEL: Record<CrawlSettings["mode"], string> = {
@@ -59,14 +58,14 @@ export function LaunchSummary({
 
   return (
     <Card
-      className={`card-glow ${GLASS_CLASS} ${capHeight ? "flex flex-col" : ""}`}
+      className={capHeight ? "flex flex-col" : undefined}
       style={capHeight ? { height: capHeight } : undefined}
     >
       <CardHeader>
         <CardTitle>Launch</CardTitle>
       </CardHeader>
       <CardContent className={`space-y-4 ${capHeight ? "flex flex-1 flex-col overflow-hidden" : ""}`}>
-        <div className="glass-inset rounded-lg px-3 py-2">
+        <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Target</p>
           <p className="truncate font-mono text-xs text-foreground">
             {targetUrl || "https://example.com"}

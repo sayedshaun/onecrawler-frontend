@@ -22,13 +22,6 @@ export function stringifyJsonForDisplay(value: unknown, space = 2): string {
     .join("\\u2029");
 }
 
-// Shared frosted-glass treatment for elements that float over other content
-// (sticky panels, dialogs, sheets). Points at the `.glass` component class
-// defined in index.css so every glass surface — translucent tinted fill,
-// backdrop blur/saturation, hairline border, and lit top edge — stays in sync
-// from one place.
-export const GLASS_CLASS = "glass";
-
 /** navigator.clipboard.writeText silently rejects in some contexts (non-secure
  * origins, sandboxed iframes/embeds without clipboard-write permission delegated)
  * — falls back to a hidden-textarea + execCommand so the copy still works there.

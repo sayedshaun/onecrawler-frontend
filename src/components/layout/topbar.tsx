@@ -35,7 +35,7 @@ export function TopBar() {
   const runningCount = overview?.jobCounts.running ?? 0;
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border/60 bg-background/60 px-3 backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background px-3 sm:gap-3 sm:px-4 lg:px-6">
       <NavLink to="/dashboard" className="flex shrink-0 items-center gap-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Radar className="h-4 w-4" />

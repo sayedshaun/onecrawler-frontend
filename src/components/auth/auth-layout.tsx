@@ -58,7 +58,7 @@ export function AuthLayout({
           <ul className="space-y-4">
             {HIGHLIGHTS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-start gap-3 text-sm text-white/85">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-inset ring-white/15 backdrop-blur-sm">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-inset ring-white/15">
                   <Icon className="h-3.5 w-3.5" />
                 </span>
                 {text}
