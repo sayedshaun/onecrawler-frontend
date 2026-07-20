@@ -237,3 +237,69 @@ export interface UsageStats {
   jobsThisMonth: number;
   urlsScrapedThisMonth: number;
 }
+
+// Agent chat — mirrors onecrawler-agents-backend's streamed chat events.
+export type AgentMessageRole = "user" | "assistant";
+
+// Mirrors onecrawler-agents-backend AgentSettingsOut/AgentSettingsIn (per-user
+// agent config): which LLM provider/model powers the agent, and an optional
+// web-search provider (currently only Tavily) that backs its web_search tool.
+// Only `hasKey` is ever read back — the raw keys are write-only.
+export type AgentLLMProvider = "openai" | "anthropic" | "google" | "openrouter";
+
+export interface AgentLLMConfig {
+  provider: AgentLLMProvider | null;
+  model: string | null;
+  hasKey: boolean;
+}
+
+export interface AgentSearchConfig {
+  provider: string | null;
+  hasKey: boolean;
+}
+
+export interface AgentSettings {
+  llm: AgentLLMConfig;
+  search: AgentSearchConfig;
+  updatedAt: string | null;
+}
+
+// A step in the agent's visible trace mid-turn — a tool it decided to call
+// ("call") or that tool's outcome ("result"). `write_todos` calls/results are
+// the agent's own planning tool and are flagged via `isPlanning` so the UI can
+// render them as "planning" rather than a generic "action". `jobId` links a
+// result back into the existing crawl detail route when one is found in it.
+export type AgentTraceStepKind = "call" | "result";
+
+export interface AgentTraceStep {
+  id: string;
+  kind: AgentTraceStepKind;
+  toolName: string;
+  isPlanning: boolean;
+  detail?: string;
+  jobId?: string;
+}
+
+// A message renders as an ordered sequence of parts — streamed text
+// interleaved with trace steps in the exact order the agent produced them
+// (a tool call can happen mid-reply, before the model resumes talking).
+export type AgentMessagePart =
+  | { kind: "text"; id: string; text: string }
+  | { kind: "step"; id: string; step: AgentTraceStep };
+
+export interface AgentMessage {
+  id: string;
+  role: AgentMessageRole;
+  parts: AgentMessagePart[];
+  createdAt: number;
+  pending?: boolean;
+  error?: string;
+}
+
+// Mirrors onecrawler-agents-backend's ConversationOut — a ChatGPT-style
+// history entry. `id` is the conversation_id used as the chat's thread id.
+export interface AgentConversationSummary {
+  id: string;
+  title: string;
+  updatedAt: number;
+}

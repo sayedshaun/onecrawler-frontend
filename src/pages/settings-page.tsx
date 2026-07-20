@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PROVIDER_MODELS } from "@/components/crawl-form/genai-section";
+import { AgentSettingsCard } from "@/components/settings/agent-settings-card";
 
 const PROVIDERS: { value: GenAIProvider; label: string }[] = [
   { value: "openai", label: "OpenAI" },
@@ -112,13 +113,13 @@ function ApiKeysCard() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="gap-1">
         <CardTitle>Provider API Keys</CardTitle>
         <CardDescription>
           Stored server-side and used for GenAI-based extraction. Keys are never shown again once saved.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {error && <p className="text-sm text-destructive">{error}</p>}
         {rowError && <p className="text-sm text-destructive">{rowError}</p>}
 
@@ -214,7 +215,7 @@ function SettingRow({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-2.5 py-3 sm:flex-row sm:items-center sm:justify-between",
         !first && "border-t border-border",
       )}
     >
@@ -319,13 +320,13 @@ function AccountCard() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="gap-1">
         <CardTitle>Account</CardTitle>
         <CardDescription>
           Manage your profile and security. Email and password changes require your current password.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent>
         <SettingRow label="Name" description="Your display name across the app." value={user?.name} first onAction={openName} />
 
         <SettingRow label="Email" description="Used to sign in and receive notifications." value={user?.email} onAction={openEmail} />
@@ -557,17 +558,17 @@ function UsageCard() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="gap-1">
         <CardTitle>Usage</CardTitle>
         <CardDescription>Your activity across all crawls.</CardDescription>
       </CardHeader>
       <CardContent>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {stats.map((s) => (
             <div key={s.label} className="rounded-lg border border-border p-3">
               <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
-              <p className="mt-1 text-lg font-semibold tabular-nums text-foreground">
+              <p className="mt-1 text-base font-semibold tabular-nums text-foreground">
                 {formatNumber(s.value)}
               </p>
             </div>
@@ -580,11 +581,12 @@ function UsageCard() {
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <AccountCard />
       <UsageCard />
       <SessionsCard />
       <ApiKeysCard />
+      <AgentSettingsCard />
     </div>
   );
 }

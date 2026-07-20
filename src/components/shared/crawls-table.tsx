@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { HoverLift } from "@/components/shared/hover-lift";
+import { RowCardLink } from "@/components/shared/row-card";
 import { formatNumber, formatRelativeTime, truncate } from "@/lib/utils";
 import type { CrawlMode, CrawlSummary } from "@/lib/types";
 
@@ -30,29 +30,24 @@ export function CrawlsTable({ jobs }: { jobs: CrawlSummary[] }) {
         {jobs.map((job) => {
           const Mode = MODE_META[job.mode];
           return (
-            <HoverLift key={job.id}>
-              <Link
-                to={`/dashboard/crawls/${job.id}`}
-                className="block rounded-lg border border-border/60 bg-card/95 p-3 transition-shadow duration-150 ease-out hover:shadow-md"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="min-w-0 truncate font-medium text-foreground">
-                    {truncate(job.targetUrl.replace(/^https?:\/\//, ""), 30)}
-                  </span>
-                  <StatusBadge status={job.status} />
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Mode.icon className="h-3 w-3" /> {Mode.label}
-                  </span>
-                  <span>{formatNumber(job.urlsScraped)} scraped</span>
-                  {job.urlsFailed > 0 && (
-                    <span className="text-destructive">{formatNumber(job.urlsFailed)} failed</span>
-                  )}
-                  {job.startedAt && <span>{formatRelativeTime(new Date(job.startedAt))}</span>}
-                </div>
-              </Link>
-            </HoverLift>
+            <RowCardLink key={job.id} to={`/dashboard/crawls/${job.id}`}>
+              <div className="flex items-start justify-between gap-2">
+                <span className="min-w-0 truncate font-medium text-foreground">
+                  {truncate(job.targetUrl.replace(/^https?:\/\//, ""), 30)}
+                </span>
+                <StatusBadge status={job.status} />
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <Mode.icon className="h-3 w-3" /> {Mode.label}
+                </span>
+                <span>{formatNumber(job.urlsScraped)} scraped</span>
+                {job.urlsFailed > 0 && (
+                  <span className="text-destructive">{formatNumber(job.urlsFailed)} failed</span>
+                )}
+                {job.startedAt && <span>{formatRelativeTime(new Date(job.startedAt))}</span>}
+              </div>
+            </RowCardLink>
           );
         })}
       </div>

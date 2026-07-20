@@ -55,6 +55,17 @@ export async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
+/** crypto.randomUUID() only exists in secure contexts (https, or localhost) —
+ * it's undefined and throws on a plain-http origin reached by IP/hostname
+ * (e.g. the production docker-compose build browsed as http://<host>:8080),
+ * which would otherwise crash the whole app since there's no error boundary. */
+export function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
 export function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;

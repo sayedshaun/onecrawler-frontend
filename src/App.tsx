@@ -14,6 +14,7 @@ const LoginPage = lazy(() => import("@/pages/login-page"));
 const SignupPage = lazy(() => import("@/pages/signup-page"));
 const DashboardPage = lazy(() => import("@/pages/dashboard-page"));
 const NewCrawlPage = lazy(() => import("@/pages/new-crawl-page"));
+const AgentsPage = lazy(() => import("@/pages/agents-page"));
 const CrawlDetailPage = lazy(() => import("@/pages/crawl-detail-page"));
 const HistoryPage = lazy(() => import("@/pages/history-page"));
 const DataPage = lazy(() => import("@/pages/data-page"));
@@ -43,6 +44,7 @@ export default function App() {
                     <Route path="crawls" element={<HistoryPage />} />
                     <Route path="crawls/new" element={<NewCrawlPage />} />
                     <Route path="crawls/:jobId" element={<CrawlDetailPage />} />
+                    <Route path="agents" element={<AgentsPage />} />
                     <Route path="data" element={<DataPage />} />
                     <Route path="templates" element={<TemplatesPage />} />
                     <Route path="tutorial" element={<TutorialPage />} />

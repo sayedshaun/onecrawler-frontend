@@ -1,57 +1,81 @@
-import { useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Bot,
+  History,
+  Database,
+  Layers,
+  GraduationCap,
+  Radar,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { SidebarContent } from "@/components/layout/sidebar";
+import { SettingsMenu } from "@/components/layout/settings-menu";
+import { LiveDot } from "@/components/shared/live-dot";
+import { usePolledResource } from "@/hooks/use-polled-resource";
+import { getDashboardOverview } from "@/lib/crawls-api";
+import { cn } from "@/lib/utils";
 
-const TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/dashboard/crawls": "Crawl History",
-  "/dashboard/crawls/new": "New Crawl",
-  "/dashboard/data": "Extracted Data",
-  "/dashboard/templates": "Templates",
-  "/dashboard/tutorial": "Tutorial",
-  "/dashboard/settings": "Settings",
-};
-
-function pageTitle(pathname: string): string {
-  if (TITLES[pathname]) return TITLES[pathname];
-  if (pathname.startsWith("/dashboard/crawls/")) return "Crawl Detail";
-  return "OneCrawler";
-}
+const NAV_ITEMS = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/dashboard/agents", label: "Agent", icon: Bot },
+  { to: "/dashboard/crawls", label: "Crawl History", icon: History },
+  { to: "/dashboard/data", label: "Extracted Data", icon: Database },
+  { to: "/dashboard/templates", label: "Templates", icon: Layers },
+  { to: "/dashboard/tutorial", label: "Tutorial", icon: GraduationCap },
+];
 
 export function TopBar() {
-  const location = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const title = useMemo(() => pageTitle(location.pathname), [location.pathname]);
+  // Shares dashboard-page's own overview poll via the same cacheKey (instant
+  // hydration from whichever fetched last) but on its own, slower interval —
+  // the running-count badge doesn't need to be as fresh as the dashboard's charts.
+  const { data: overview } = usePolledResource(getDashboardOverview, {
+    intervalMs: 20000,
+    cacheKey: "dashboard:overview",
+  });
+  const runningCount = overview?.jobCounts.running ?? 0;
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/60 px-4 backdrop-blur-xl backdrop-saturate-150 lg:px-6">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Open navigation"
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border/60 bg-background/60 px-3 backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-4 lg:px-6">
+      <NavLink to="/dashboard" className="flex shrink-0 items-center gap-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <Radar className="h-4 w-4" />
+        </div>
+        <span className="hidden text-sm font-semibold tracking-tight text-foreground md:inline">
+          OneCrawler
+        </span>
+      </NavLink>
 
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        {/* w-3/4 (not a fixed px width) so the drawer stays proportional on very
-            narrow phones instead of eating almost the whole screen; max-w-xs
-            caps it once the 3/4 share would otherwise get too wide. */}
-        <SheetContent side="left" className="w-3/4 max-w-xs p-0">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <div onClick={() => setMobileOpen(false)} className="h-full">
-            <SidebarContent />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Centered within the space between the logo and the right-side actions —
+          on narrow screens this fills that space and scrolls horizontally
+          instead, since there isn't room to lay all links out at once. */}
+      <nav className="scrollbar-thin flex min-w-0 flex-1 items-center justify-start gap-1 overflow-x-auto overflow-y-hidden sm:justify-center">
+        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              cn(
+                "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground sm:px-3",
+                isActive && "bg-accent text-accent-foreground",
+              )
+            }
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:inline">{label}</span>
+            {label === "Crawl History" && runningCount > 0 && (
+              <span className="flex items-center gap-1 rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-semibold text-success">
+                <LiveDot className="bg-success" />
+                {runningCount}
+              </span>
+            )}
+          </NavLink>
+        ))}
+      </nav>
 
-      <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <SettingsMenu />
+      </div>
     </header>
   );
 }

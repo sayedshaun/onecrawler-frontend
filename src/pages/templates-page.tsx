@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
-import { HoverLift } from "@/components/shared/hover-lift";
+import { RowCard } from "@/components/shared/row-card";
 import { LinkExtractionSection } from "@/components/crawl-form/link-extraction-section";
 import { ScrapingSection } from "@/components/crawl-form/scraping-section";
 import { FilterChainBuilder } from "@/components/crawl-form/filter-chain-builder";
@@ -204,9 +204,9 @@ export default function TemplatesPage() {
           ) : (
             <div className="space-y-2">
               {filteredTemplates.map((t) => (
-                <HoverLift key={t.id}>
-                <div
-                  className="flex flex-col items-start gap-3 rounded-lg border border-border/60 bg-card/95 p-3 transition-shadow duration-150 ease-out hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+                <RowCard
+                  key={t.id}
+                  className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{t.name}</p>
@@ -242,8 +242,7 @@ export default function TemplatesPage() {
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                </div>
-                </HoverLift>
+                </RowCard>
               ))}
             </div>
           )}
