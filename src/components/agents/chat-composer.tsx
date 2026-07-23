@@ -49,7 +49,7 @@ export function ChatComposer({
   }
 
   return (
-    <div className="flex items-end gap-2 rounded-3xl border border-border bg-background p-2 pl-4">
+    <div className="flex items-end gap-2 rounded-3xl border border-border bg-background p-2 pl-4 shadow-sm transition-[border-color,box-shadow] duration-200 focus-within:border-primary/60 focus-within:shadow-[0_0_0_4px_hsl(var(--primary)/0.1)]">
       <Textarea
         ref={textareaRef}
         value={value}

@@ -4,30 +4,30 @@
 
 @layer base {
   :root {
-    /* Warm "cream / paper" light theme. Neutrals carry a warm ivory tint
-       (hue ~40) instead of cool gray — the page is a soft cream, cards are a
-       warm white that lifts off it, and text is a warm near-black rather than
-       blue-black. The copper/orange brand accent (hue ~20, matching dark
-       mode) is the single saturated pop of colour against the warm ground. */
-    --background: 42 38% 96%;
+    /* Off-white light theme. Neutrals keep only a whisper of warmth (hue ~40,
+       very low saturation) so the page reads as a clean off-white rather than
+       a cool blue-gray or a saturated cream — cards are pure white that lift
+       off it, and text is a warm near-black. The copper/orange brand accent
+       (hue ~20, matching dark mode) is the single saturated pop of colour. */
+    --background: 40 14% 97%;
     --foreground: 28 18% 13%;
 
-    --card: 40 50% 99%;
+    --card: 0 0% 100%;
     --card-foreground: 28 18% 13%;
 
-    --popover: 40 50% 99%;
+    --popover: 0 0% 100%;
     --popover-foreground: 28 18% 13%;
 
     --primary: 20 85% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 30% 93%;
+    --secondary: 40 10% 94%;
     --secondary-foreground: 28 18% 15%;
 
-    --muted: 42 30% 93%;
-    --muted-foreground: 35 10% 42%;
+    --muted: 40 10% 94%;
+    --muted-foreground: 35 8% 44%;
 
-    --accent: 40 34% 90%;
+    --accent: 40 10% 91%;
     --accent-foreground: 28 18% 15%;
 
     --destructive: 0 72% 51%;
@@ -39,8 +39,8 @@
     --warning: 36 92% 48%;
     --warning-foreground: 28 20% 10%;
 
-    --border: 40 24% 86%;
-    --input: 40 24% 86%;
+    --border: 40 9% 88%;
+    --input: 40 9% 88%;
     --ring: 20 85% 50%;
 
     /* JSON viewer syntax palette — brand-cohesive tokens (copper keys, green
@@ -57,10 +57,10 @@
 
     --radius: 0.75rem;
 
-    --sidebar: 44 42% 97%;
+    --sidebar: 40 16% 98%;
     --sidebar-foreground: 30 14% 24%;
-    --sidebar-border: 40 24% 86%;
-    --sidebar-accent: 40 34% 90%;
+    --sidebar-border: 40 9% 88%;
+    --sidebar-accent: 40 10% 91%;
   }
 
   .dark {

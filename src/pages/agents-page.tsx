@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bot, FileSearch, History, ListChecks, Map, Settings } from "lucide-react";
+import {
+  Bot,
+  Database,
+  History,
+  ListChecks,
+  Network,
+  Settings,
+  Sparkles,
+  SquarePen,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { ChatComposer } from "@/components/agents/chat-composer";
@@ -18,7 +27,7 @@ import {
   streamAgentChat,
 } from "@/lib/agents-api";
 import { ApiError } from "@/lib/api";
-import { formatRelativeTime, generateId } from "@/lib/utils";
+import { cn, formatRelativeTime, generateId } from "@/lib/utils";
 import type { AgentConversationSummary, AgentMessage, AgentTraceStep } from "@/lib/types";
 
 // Appends a token delta to the message's trailing text part, or starts a new
@@ -50,22 +59,37 @@ function appendStep(message: AgentMessage, step: AgentTraceStep): AgentMessage {
 }
 
 const SUGGESTIONS = [
-  { icon: FileSearch, text: "Crawl example.com and extract every blog post title and publish date" },
-  { icon: Map, text: "Start a sitemap crawl of docs.example.com limited to 200 URLs" },
-  { icon: ListChecks, text: "What's the status of my most recent crawl?" },
+  {
+    icon: Database,
+    title: "Extract structured data",
+    prompt: "Crawl example.com and extract every blog post title and publish date",
+  },
+  {
+    icon: Network,
+    title: "Map an entire site",
+    prompt: "Start a sitemap crawl of docs.example.com limited to 200 URLs",
+  },
+  {
+    icon: Sparkles,
+    title: "Scrape & summarize",
+    prompt: "Scrape the homepage of example.com and summarize what the company does",
+  },
+  {
+    icon: ListChecks,
+    title: "Check a crawl",
+    prompt: "What's the status of my most recent crawl?",
+  },
 ];
 
 export default function AgentsPage() {
   const [conversations, setConversations] = useState<AgentConversationSummary[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
-  // Starts true so the first paint shows the loading spinner instead of a
-  // flash of the empty-state greeting while the initial conversation list
-  // fetch is still in flight.
-  const [loadingConversation, setLoadingConversation] = useState(true);
+  const [loadingConversation, setLoadingConversation] = useState(false);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [conversationsLoading, setConversationsLoading] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
@@ -77,34 +101,30 @@ export default function AgentsPage() {
   const { data: settings } = usePolledResource(getAgentSettings, { cacheKey: "agents:settings" });
   const isConfigured = settings?.llm.hasKey ?? false;
 
-  // Seeds the conversation list from the backend on first mount. Its history
-  // only tracks conversations that have received at least one message — a
-  // brand-new session starts on an unsaved, client-only id that becomes real
-  // the moment the first message is sent.
+  // Seeds the conversation list from the backend on first mount so the
+  // sidebar is populated, but always opens on a fresh, unsaved chat rather
+  // than auto-loading the most recent conversation — its history only tracks
+  // conversations that have received at least one message, and this one
+  // becomes real the moment the first message is sent.
   useEffect(() => {
+    const id = generateId();
+    setActiveId(id);
+    activeIdRef.current = id;
+
     listAgentConversations()
-      .then((list) => {
-        setConversations(list);
-        const id = list[0]?.id ?? generateId();
-        setActiveId(id);
-        activeIdRef.current = id;
-        if (list[0]) {
-          loadConversation(list[0].id);
-        } else {
-          setLoadingConversation(false);
-        }
-      })
-      .catch(() => {
-        const id = generateId();
-        setActiveId(id);
-        activeIdRef.current = id;
-        setLoadingConversation(false);
-      });
+      .then(setConversations)
+      .catch(() => {})
+      .finally(() => setConversationsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    scrollAnchorRef.current?.scrollIntoView({ block: "end" });
+    // `html` sets `scroll-behavior: smooth` globally (an inherited CSS
+    // property), which would otherwise make this scrollIntoView animate on
+    // every render — most jarringly on the very first jump to the bottom of
+    // a loaded conversation, which reads as the whole chat sliding up into
+    // place instead of just appearing.
+    scrollAnchorRef.current?.scrollIntoView({ block: "end", behavior: "instant" });
   }, [messages]);
 
   useEffect(() => {
@@ -233,11 +253,25 @@ export default function AgentsPage() {
 
   const hasMessages = messages.length > 0;
   const activeConversation = conversations.find((c) => c.id === activeId);
+  // Composer lives centered inside the hero on an empty chat (modern AI-app
+  // pattern), then drops to the bottom the moment a conversation has content.
+  const composer = (
+    <ChatComposer
+      value={input}
+      onChange={setInput}
+      onSubmit={() => send(input)}
+      onStop={handleStop}
+      isStreaming={isStreaming}
+      disabled={!isConfigured}
+      placeholder={isConfigured ? undefined : "Configure the agent in Settings to start chatting"}
+      autoFocus={isConfigured && !isStreaming && !loadingConversation}
+    />
+  );
 
   return (
-    <div className="-mx-4 -my-6 flex h-[calc(100dvh-3.5rem)] lg:-mx-8 lg:-my-8">
+    <div className="-my-6 flex h-[calc(100dvh-3.5rem)] lg:-my-8">
       <aside className="hidden w-64 shrink-0 border-r border-border p-3 md:block">
-        <ConversationHistory conversations={conversations} activeId={activeId} onSelect={selectConversation} onNew={handleNewChat} />
+        <ConversationHistory conversations={conversations} activeId={activeId} onSelect={selectConversation} onNew={handleNewChat} loading={conversationsLoading} />
       </aside>
 
       <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
@@ -248,6 +282,7 @@ export default function AgentsPage() {
             activeId={activeId}
             onSelect={selectConversation}
             onNew={handleNewChat}
+            loading={conversationsLoading}
           />
         </SheetContent>
       </Sheet>
@@ -263,28 +298,65 @@ export default function AgentsPage() {
           >
             <History className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-medium text-foreground">
-            {settings?.llm.model || "Agent"}
-          </span>
-          {hasMessages && activeConversation && (
-            <span className="text-xs text-muted-foreground">
-              · {formatRelativeTime(new Date(activeConversation.updatedAt))}
+
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="relative flex h-2 w-2 shrink-0">
+              {isStreaming && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+              )}
+              <span
+                className={cn(
+                  "relative inline-flex h-2 w-2 rounded-full",
+                  isConfigured ? "bg-primary" : "bg-muted-foreground/40",
+                )}
+              />
             </span>
-          )}
+            <span className="truncate text-sm font-medium text-foreground">
+              {settings?.llm.model || "Agent"}
+            </span>
+            <span className="hidden text-xs text-muted-foreground sm:inline">
+              {isStreaming
+                ? "· working…"
+                : hasMessages && activeConversation
+                  ? `· ${formatRelativeTime(new Date(activeConversation.updatedAt))}`
+                  : "· ready"}
+            </span>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto shrink-0"
+            onClick={handleNewChat}
+            aria-label="New chat"
+          >
+            <SquarePen className="h-4 w-4" />
+          </Button>
         </div>
 
         {loadingConversation ? (
           <div className="flex-1" />
         ) : !hasMessages ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Bot className="h-6 w-6" />
-            </div>
+          <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4">
+            {/* Ambient copper glow behind the hero. A radial-gradient rather
+                than a blurred circle: `blur-3xl` forces a costly re-rasterize on
+                every frame of the page-enter slide (the transform is on an
+                ancestor), which is what made the tab open janky. A gradient
+                composites cheaply. Static (no keyframes), so it's also inert
+                under reduce-motion without extra handling. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-[38%] h-[32rem] w-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.14),transparent_70%)]"
+            />
+
             {!isConfigured ? (
-              <>
+              <div className="relative flex flex-col items-center gap-4 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <Bot className="h-7 w-7" />
+                </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">Configure the agent to get started</h2>
-                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                  <h2 className="text-xl font-semibold text-foreground">Configure the agent to get started</h2>
+                  <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
                     It needs its own LLM provider and API key before it can plan and run crawls for you.
                   </p>
                 </div>
@@ -294,24 +366,42 @@ export default function AgentsPage() {
                     Configure agent
                   </Link>
                 </Button>
-              </>
+              </div>
             ) : (
-              <>
-                <h2 className="text-lg font-semibold text-foreground">What are we crawling today?</h2>
-                <div className="flex w-full max-w-2xl flex-col gap-2">
+              <div className="relative flex w-full max-w-2xl flex-col items-center gap-6">
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                    <Bot className="h-7 w-7" />
+                  </div>
+                  <h2 className="text-2xl font-semibold tracking-tight">
+                    What are we <span className="text-gradient">crawling</span> today?
+                  </h2>
+                  <p className="max-w-md text-sm text-muted-foreground">
+                    Describe a site and what to pull from it — the agent plans the crawl, runs it, and reports back.
+                  </p>
+                </div>
+
+                <div className="w-full">{composer}</div>
+
+                <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
                   {SUGGESTIONS.map((s) => (
                     <button
-                      key={s.text}
+                      key={s.title}
                       type="button"
-                      onClick={() => send(s.text)}
-                      className="flex items-center gap-2.5 rounded-2xl border border-border bg-background px-4 py-2.5 text-left text-sm text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => send(s.prompt)}
+                      className="group flex items-start gap-3 rounded-2xl border border-border bg-card/50 p-3 text-left transition-colors duration-150 ease-out hover:border-primary/40 hover:bg-accent"
                     >
-                      <s.icon className="h-4 w-4 shrink-0 text-primary" />
-                      {s.text}
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                        <s.icon className="h-4 w-4" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-medium text-foreground">{s.title}</span>
+                        <span className="mt-0.5 block truncate text-xs text-muted-foreground">{s.prompt}</span>
+                      </span>
                     </button>
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
         ) : (
@@ -325,21 +415,14 @@ export default function AgentsPage() {
           </ScrollArea>
         )}
 
-        <div className="mx-auto w-full max-w-2xl px-4 pb-4 pt-2">
-          <ChatComposer
-            value={input}
-            onChange={setInput}
-            onSubmit={() => send(input)}
-            onStop={handleStop}
-            isStreaming={isStreaming}
-            disabled={!isConfigured}
-            placeholder={isConfigured ? undefined : "Configure the agent in Settings to start chatting"}
-            autoFocus={isConfigured && !isStreaming && !loadingConversation}
-          />
-          <p className="mt-2 text-center text-xs text-muted-foreground">
-            The agent can make mistakes — check crawl results before relying on them.
-          </p>
-        </div>
+        {hasMessages && (
+          <div className="mx-auto w-full max-w-2xl px-4 pb-4 pt-2">
+            {composer}
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              The agent can make mistakes — check crawl results before relying on them.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
