@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Layers, Loader2, Pencil, RotateCcw, Save, Search, Trash2 } from "lucide-react";
+import { Layers, Loader2, Save, Search, Trash2 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { RowCard } from "@/components/shared/row-card";
+import { TemplateCard } from "@/components/templates/template-card";
 import { LinkExtractionSection } from "@/components/crawl-form/link-extraction-section";
 import { ScrapingSection } from "@/components/crawl-form/scraping-section";
 import { FilterChainBuilder } from "@/components/crawl-form/filter-chain-builder";
@@ -27,7 +27,6 @@ import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
 import { parseSettingsPayload } from "@/lib/api-mapper";
 import { createTemplate, deleteTemplate, listTemplates, updateTemplate } from "@/lib/templates-api";
-import { formatRelativeTime } from "@/lib/utils";
 import { useSettingsStore } from "@/store/settings-store";
 import type { CrawlSettings, CrawlTemplate } from "@/lib/types";
 
@@ -201,47 +200,17 @@ export default function TemplatesPage() {
               description="Try a different search term."
             />
           ) : (
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {filteredTemplates.map((t) => (
-                <RowCard
+                <TemplateCard
                   key={t.id}
-                  className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{t.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      Updated {formatRelativeTime(new Date(t.updatedAt))}
-                    </p>
-                  </div>
-                  <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
-                    <Button variant="outline" size="sm" onClick={() => openEdit(t)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                      View &amp; edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={updatingId === t.id}
-                      onClick={() => handleUpdate(t)}
-                    >
-                      {updatingId === t.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <RotateCcw className="h-3.5 w-3.5" />
-                      )}
-                      Update from defaults
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => setDeleteTarget(t)}
-                      aria-label="Delete template"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </RowCard>
+                  template={t}
+                  settings={parseSettingsPayload(t.settings, t.filters, defaults)}
+                  updating={updatingId === t.id}
+                  onEdit={() => openEdit(t)}
+                  onUpdateFromDefaults={() => handleUpdate(t)}
+                  onDelete={() => setDeleteTarget(t)}
+                />
               ))}
             </div>
           )}
