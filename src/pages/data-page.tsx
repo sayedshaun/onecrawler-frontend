@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { Pagination } from "@/components/shared/pagination";
 import { ResultDetailDrawer } from "@/components/shared/result-detail-drawer-lazy";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -144,6 +145,11 @@ export default function DataPage() {
 
   return (
     <div className="space-y-4">
+      <PageHeader
+        icon={Database}
+        title="Extracted Data"
+        description="Everything your crawls have scraped, ready to preview or export."
+      />
       <Card>
         <CardContent className="space-y-4 p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

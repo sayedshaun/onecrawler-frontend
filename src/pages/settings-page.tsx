@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Check, Key, Loader2, LogOut, Save, ShieldCheck, Trash2, UserRound } from "lucide-react";
+import { Check, Key, Loader2, LogOut, Save, Settings2, ShieldCheck, Trash2, UserRound } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/select";
 import { PROVIDER_MODELS } from "@/components/crawl-form/genai-section";
 import { AgentSettingsCard } from "@/components/settings/agent-settings-card";
+import { PageHeader } from "@/components/shared/page-header";
 
 const PROVIDERS: { value: GenAIProvider; label: string }[] = [
   { value: "openai", label: "OpenAI" },
@@ -582,6 +583,11 @@ function UsageCard() {
 export default function SettingsPage() {
   return (
     <div className="space-y-4">
+      <PageHeader
+        icon={Settings2}
+        title="Settings"
+        description="Manage your account, API keys, and agent configuration."
+      />
       <AccountCard />
       <UsageCard />
       <SessionsCard />

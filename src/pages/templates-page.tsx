@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layers, Loader2, Pencil, RotateCcw, Save, Search, Trash2 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { RowCard } from "@/components/shared/row-card";
 import { LinkExtractionSection } from "@/components/crawl-form/link-extraction-section";
 import { ScrapingSection } from "@/components/crawl-form/scraping-section";
@@ -130,15 +131,11 @@ export default function TemplatesPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex-col items-start gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Crawl Templates</CardTitle>
-            <CardDescription>
-              Save your current default settings as a reusable template, and apply one when starting a
-              new crawl.
-            </CardDescription>
-          </div>
+      <PageHeader
+        icon={Layers}
+        title="Crawl Templates"
+        description="Reusable snapshots of your default crawl settings."
+        actions={
           <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -173,8 +170,10 @@ export default function TemplatesPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </CardHeader>
-        <CardContent className="space-y-3">
+        }
+      />
+      <Card>
+        <CardContent className="space-y-3 p-5">
           {(error || rowError) && <p className="text-sm text-destructive">{error ?? rowError}</p>}
 
           {templates.length > 0 && (

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CrawlsTable } from "@/components/shared/crawls-table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { Pagination } from "@/components/shared/pagination";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePolledResource } from "@/hooks/use-polled-resource";
@@ -54,6 +55,16 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-4">
+      <PageHeader
+        icon={HistoryIcon}
+        title="Crawl History"
+        description="Every crawl you've run, with live status."
+        actions={
+          <Button asChild size="sm">
+            <Link to="/dashboard/crawls/new">Start a new crawl</Link>
+          </Button>
+        }
+      />
       {error && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Card>
         <CardContent className="space-y-4 p-5">

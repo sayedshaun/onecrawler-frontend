@@ -30,6 +30,7 @@ import { FilterChainBuilder } from "@/components/crawl-form/filter-chain-builder
 import { ProxySection } from "@/components/crawl-form/proxy-section";
 import { BrowserSection } from "@/components/crawl-form/browser-section";
 import { LaunchSummary } from "@/components/crawl-form/launch-summary";
+import { PageHeader } from "@/components/shared/page-header";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import { ApiError } from "@/lib/api";
 import { createCrawl, createCrawlFromPayload } from "@/lib/crawls-api";
@@ -166,6 +167,13 @@ export default function NewCrawlPage() {
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="xl:col-span-3">
+        <PageHeader
+          icon={Globe}
+          title="New Crawl"
+          description="Point the crawler at a site and choose how to discover and scrape it."
+        />
+      </div>
       <div ref={leftColumnRef} className="space-y-6 xl:col-span-2">
         <Card>
           <CardHeader>

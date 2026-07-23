@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
+  Bot,
   CheckCircle2,
   FileStack,
   ListChecks,
@@ -67,21 +68,49 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            {firstName ? `Welcome back, ${firstName}` : "Welcome back"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Here's what's happening across your crawls.
-          </p>
+      <div className="relative overflow-hidden rounded-xl border border-border bg-card p-6">
+        {/* Ambient copper glow, cheap radial-gradient (no blur) so it never
+            costs a re-rasterize on the page-enter slide — same treatment as
+            the agent hero. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.16),transparent_70%)]"
+        />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20 sm:flex">
+              <Radar className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                {firstName ? (
+                  <>
+                    Welcome back, <span className="text-gradient">{firstName}</span>
+                  </>
+                ) : (
+                  "Welcome back"
+                )}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Here's what's happening across your crawls.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link to="/dashboard/agents">
+                <Bot className="h-4 w-4" />
+                Ask the agent
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/dashboard/crawls/new">
+                <SquarePlus className="h-4 w-4" />
+                New Crawl
+              </Link>
+            </Button>
+          </div>
         </div>
-        <Button asChild>
-          <Link to="/dashboard/crawls/new">
-            <SquarePlus className="h-4 w-4" />
-            New Crawl
-          </Link>
-        </Button>
       </div>
 
       {overviewError && (
