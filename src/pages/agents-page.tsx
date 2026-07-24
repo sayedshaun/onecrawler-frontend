@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   Bot,
   Database,
@@ -26,6 +25,7 @@ import {
 import { ApiError } from "@/lib/api";
 import { cn, formatRelativeTime, generateId } from "@/lib/utils";
 import { useAgentChatStore } from "@/store/agent-chat-store";
+import { useSettingsDialogStore } from "@/store/settings-dialog-store";
 import type { AgentMessage, AgentTraceStep } from "@/lib/types";
 
 // Appends a token delta to the message's trailing text part, or starts a new
@@ -85,6 +85,7 @@ export default function AgentsPage() {
   const activeId = useAgentChatStore((s) => s.activeId);
   const setActiveId = useAgentChatStore((s) => s.setActiveId);
   const setConversationsLoading = useAgentChatStore((s) => s.setLoading);
+  const openSettings = useSettingsDialogStore((s) => s.openSettings);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [loadingConversation, setLoadingConversation] = useState(false);
   const [input, setInput] = useState("");
@@ -354,11 +355,9 @@ export default function AgentsPage() {
                     It needs its own LLM provider and API key before it can plan and run crawls for you.
                   </p>
                 </div>
-                <Button size="sm" asChild>
-                  <Link to="/dashboard/settings">
-                    <Settings className="h-3.5 w-3.5" />
-                    Configure agent
-                  </Link>
+                <Button size="sm" onClick={openSettings}>
+                  <Settings className="h-3.5 w-3.5" />
+                  Configure agent
                 </Button>
               </div>
             ) : (

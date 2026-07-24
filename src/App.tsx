@@ -1,9 +1,10 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { ProtectedRoute } from "@/components/routing/protected-route";
 import { PageLoader } from "@/components/shared/page-loader";
+import { useSettingsDialogStore } from "@/store/settings-dialog-store";
 
 // Every page is its own chunk instead of one ~1.25MB bundle everyone downloads
 // up front — anonymous visitors hitting the public landing page no longer pay
@@ -20,8 +21,17 @@ const HistoryPage = lazy(() => import("@/pages/history-page"));
 const DataPage = lazy(() => import("@/pages/data-page"));
 const TemplatesPage = lazy(() => import("@/pages/templates-page"));
 const TutorialPage = lazy(() => import("@/pages/tutorial-page"));
-const SettingsPage = lazy(() => import("@/pages/settings-page"));
 const NotFoundPage = lazy(() => import("@/pages/not-found-page"));
+
+// /dashboard/settings is no longer a page — Settings only opens as a popup
+// now (see settings-dialog-store.ts). Old links/bookmarks land on the
+// dashboard with the dialog already open instead of a dead route.
+function SettingsRedirect() {
+  useEffect(() => {
+    useSettingsDialogStore.getState().openSettings();
+  }, []);
+  return <Navigate to="/dashboard" replace />;
+}
 
 export default function App() {
   return (
@@ -48,7 +58,8 @@ export default function App() {
                     <Route path="data" element={<DataPage />} />
                     <Route path="templates" element={<TemplatesPage />} />
                     <Route path="tutorial" element={<TutorialPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
+                    <Route path="settings" element={<SettingsRedirect />} />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </Suspense>
               </AppShell>

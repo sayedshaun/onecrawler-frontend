@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -6,6 +6,14 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/topbar";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { transitionPage } from "@/lib/motion";
+import { useSettingsDialogStore } from "@/store/settings-dialog-store";
+
+// Lazy, same reasoning as in settings-menu.tsx: this pulls in every settings
+// card, and mounting it here means it's loaded once for the whole app rather
+// than per-trigger.
+const SettingsDialog = lazy(() =>
+  import("@/components/settings/settings-dialog").then((m) => ({ default: m.SettingsDialog })),
+);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -24,6 +32,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   // without the hop.
   const fullBleed = location.pathname === "/dashboard/agents";
   const enterOffset = fullBleed ? 0 : 6;
+
+  const settingsOpen = useSettingsDialogStore((s) => s.open);
+  const setSettingsOpen = useSettingsDialogStore((s) => s.setOpen);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-background">
@@ -54,6 +65,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </motion.div>
         </main>
       </div>
+
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+        </Suspense>
+      )}
     </div>
   );
 }

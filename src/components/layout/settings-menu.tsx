@@ -1,4 +1,3 @@
-import { lazy, Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 
@@ -11,14 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/store/auth-store";
-
-// Lazy: SettingsMenu itself is always mounted (top bar + sidebar, on every
-// page), but its account/usage/API-key card content is a real chunk of code —
-// deferring it until the dialog is actually opened keeps that weight out of
-// the app's initial bundle, the same way each route is already lazy-loaded.
-const SettingsDialog = lazy(() =>
-  import("@/components/settings/settings-dialog").then((m) => ({ default: m.SettingsDialog })),
-);
+import { useSettingsDialogStore } from "@/store/settings-dialog-store";
 
 interface SettingsMenuProps {
   /** "icon" — bare gear button (top bar, mobile). "row" — full-width
@@ -34,7 +26,7 @@ export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const openSettings = useSettingsDialogStore((s) => s.openSettings);
 
   async function handleLogout() {
     await logout();
@@ -90,7 +82,7 @@ export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
           </>
         )}
 
-        <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+        <DropdownMenuItem onClick={openSettings}>
           <Settings className="h-4 w-4" />
           Settings
         </DropdownMenuItem>
@@ -102,12 +94,6 @@ export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
-
-      {settingsOpen && (
-        <Suspense fallback={null}>
-          <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-        </Suspense>
-      )}
     </DropdownMenu>
   );
 }

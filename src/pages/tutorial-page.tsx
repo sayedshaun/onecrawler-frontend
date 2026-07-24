@@ -27,6 +27,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, type AccordionItemData } from "@/components/tutorial/accordion";
 import { cn } from "@/lib/utils";
+import { useSettingsDialogStore } from "@/store/settings-dialog-store";
 
 // ── Content ────────────────────────────────────────────────────────────────
 
@@ -143,9 +144,13 @@ const FAQ: AccordionItemData[] = [
       <>
         Only for AI features. Heuristic and Markdownify extraction need no key at all. GenAI extraction
         and the AI agent each need a provider key, which you add under{" "}
-        <Link to="/dashboard/settings" className="text-primary hover:underline">
+        <button
+          type="button"
+          onClick={() => useSettingsDialogStore.getState().openSettings()}
+          className="text-primary underline-offset-4 hover:underline"
+        >
           Settings
-        </Link>
+        </button>
         .
       </>
     ),

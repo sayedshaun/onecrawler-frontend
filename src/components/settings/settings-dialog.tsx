@@ -17,23 +17,22 @@ const CATEGORIES = [
   { key: "api-keys", label: "API Keys", icon: KeyRound, content: ApiKeysCard },
 ] as const;
 
-/** The gear icon's settings entry point — a bounded popup (like ChatGPT/Claude's
- * own settings modal) instead of a full-page navigation, so adjusting a key or
- * theme doesn't interrupt whatever you were looking at. Reuses the same card
- * components as the full /dashboard/settings page. */
+/** The only Settings surface in the app — a bounded popup (like ChatGPT/
+ * Claude's own settings modal), opened from the gear/account menu or via
+ * settings-dialog-store.ts from anywhere else, instead of a full page. */
 export function SettingsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const [active, setActive] = useState<(typeof CATEGORIES)[number]["key"]>("account");
   const ActiveContent = CATEGORIES.find((c) => c.key === active)?.content ?? AccountCard;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[34rem] max-h-[calc(100dvh-4rem)] w-[calc(100%-2rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0">
+      <DialogContent className="flex h-[42rem] max-h-[calc(100dvh-4rem)] w-[calc(100%-2rem)] max-w-4xl flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
-          <nav className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-border p-2 sm:w-44 sm:flex-col sm:overflow-y-auto sm:border-b-0 sm:border-r sm:p-3">
+          <nav className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-border p-2 sm:w-48 sm:flex-col sm:overflow-y-auto sm:border-b-0 sm:border-r sm:p-3">
             {CATEGORIES.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
