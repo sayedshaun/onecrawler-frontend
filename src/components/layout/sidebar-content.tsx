@@ -104,9 +104,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Account entry anchored to the bottom, like ChatGPT/Claude — the
           same menu the top bar used to open via its own gear icon, just with
-          identity visible up front instead of hidden behind an icon. */}
+          identity visible up front instead of hidden behind an icon. Tutorial
+          lives inside that menu now, between Settings and Log out. */}
       <div className="shrink-0 border-t border-border p-3">
-        <SettingsMenu variant="row" />
+        <SettingsMenu variant="row" onNavigate={onNavigate} />
       </div>
     </div>
   );

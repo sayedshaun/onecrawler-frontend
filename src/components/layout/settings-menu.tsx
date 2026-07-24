@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { ChevronsUpDown, GraduationCap, LogOut, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,12 +17,16 @@ interface SettingsMenuProps {
    * avatar + name row anchored to the bottom of the Sidebar, like
    * ChatGPT/Claude's account entry. */
   variant?: "icon" | "row";
+  /** Closes the mobile nav Sheet this menu lives in, if any, once Tutorial
+   * (an actual navigation) is clicked — Settings/Log out don't need it since
+   * neither navigates away from the current page. */
+  onNavigate?: () => void;
 }
 
 /** The single settings entry point — user identity, the Settings dialog
- * (which now owns the theme switcher, under Appearance), and logout, all
- * under one trigger instead of scattered avatar/theme-toggle/logout controls. */
-export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
+ * (which now owns the theme switcher, under Appearance), Tutorial, and
+ * logout, all under one trigger instead of scattered controls. */
+export function SettingsMenu({ variant = "icon", onNavigate }: SettingsMenuProps) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
@@ -85,6 +89,13 @@ export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
         <DropdownMenuItem onClick={openSettings}>
           <Settings className="h-4 w-4" />
           Settings
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <NavLink to="/dashboard/tutorial" onClick={onNavigate} className="cursor-pointer">
+            <GraduationCap className="h-4 w-4" />
+            Tutorial
+          </NavLink>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
