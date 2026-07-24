@@ -1,19 +1,24 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { ChevronsUpDown, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme } from "@/providers/theme-provider";
 import { useAuthStore } from "@/store/auth-store";
+
+// Lazy: SettingsMenu itself is always mounted (top bar + sidebar, on every
+// page), but its account/usage/API-key card content is a real chunk of code —
+// deferring it until the dialog is actually opened keeps that weight out of
+// the app's initial bundle, the same way each route is already lazy-loaded.
+const SettingsDialog = lazy(() =>
+  import("@/components/settings/settings-dialog").then((m) => ({ default: m.SettingsDialog })),
+);
 
 interface SettingsMenuProps {
   /** "icon" — bare gear button (top bar, mobile). "row" — full-width
@@ -22,14 +27,14 @@ interface SettingsMenuProps {
   variant?: "icon" | "row";
 }
 
-/** The single settings entry point — user identity, a link to the full
- * Settings page, and the theme switcher, all under one trigger instead of
- * scattered avatar/theme-toggle/logout controls. */
+/** The single settings entry point — user identity, the Settings dialog
+ * (which now owns the theme switcher, under Appearance), and logout, all
+ * under one trigger instead of scattered avatar/theme-toggle/logout controls. */
 export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
-  const { theme, setTheme } = useTheme();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   async function handleLogout() {
     await logout();
@@ -85,30 +90,10 @@ export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
           </>
         )}
 
-        <DropdownMenuItem asChild>
-          <NavLink to="/dashboard/settings" className="cursor-pointer">
-            <Settings className="h-4 w-4" />
-            Settings
-          </NavLink>
+        <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+          <Settings className="h-4 w-4" />
+          Settings
         </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuLabel>Theme</DropdownMenuLabel>
-        <DropdownMenuRadioGroup value={theme} onValueChange={(v) => setTheme(v as typeof theme)}>
-          <DropdownMenuRadioItem value="light" className="gap-2">
-            <Sun className="h-4 w-4" />
-            Light
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="dark" className="gap-2">
-            <Moon className="h-4 w-4" />
-            Dark
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="system" className="gap-2">
-            <Monitor className="h-4 w-4" />
-            System
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
 
         <DropdownMenuSeparator />
 
@@ -117,6 +102,12 @@ export function SettingsMenu({ variant = "icon" }: SettingsMenuProps) {
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
+
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+        </Suspense>
+      )}
     </DropdownMenu>
   );
 }
