@@ -15,7 +15,7 @@ import { usePolledResource } from "@/hooks/use-polled-resource";
 import { listCrawls } from "@/lib/crawls-api";
 import type { CrawlStatus } from "@/lib/types";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const FILTERS: { value: CrawlStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
