@@ -18,9 +18,9 @@ export function EmptyState({
           surface rather than a blank slate — matches the agent hero. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.07),transparent_70%)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.08),hsl(var(--gradient-to)/0.05)_55%,transparent_75%)]"
       />
-      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
         <Icon className="h-5 w-5" />
       </div>
       <div className="relative space-y-1">

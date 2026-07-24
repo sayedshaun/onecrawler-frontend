@@ -42,7 +42,7 @@ export function AuthLayout({
         />
 
         <Link to="/" className="relative z-10 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-copper text-primary-foreground">
             <Radar className="h-4 w-4" />
           </div>
           <span className="text-sm font-semibold tracking-tight">OneCrawler</span>
@@ -82,7 +82,7 @@ export function AuthLayout({
         />
         <div className="relative mx-auto w-full max-w-sm">
           <Link to="/" className="mb-8 flex items-center gap-2 lg:hidden">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-copper text-primary-foreground">
               <Radar className="h-4 w-4" />
             </div>
             <span className="text-sm font-semibold tracking-tight text-foreground">OneCrawler</span>

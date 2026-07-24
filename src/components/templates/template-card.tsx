@@ -58,7 +58,7 @@ export function TemplateCard({
   return (
     <div className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors duration-150 ease-out hover:border-primary/40">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
           <ModeIcon className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">

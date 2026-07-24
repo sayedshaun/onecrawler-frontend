@@ -74,11 +74,11 @@ export default function DashboardPage() {
             the agent hero. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.16),transparent_70%)]"
+          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.18),hsl(var(--gradient-to)/0.10)_55%,transparent_75%)]"
         />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20 sm:flex">
+            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20 sm:flex">
               <Radar className="h-6 w-6" />
             </div>
             <div>

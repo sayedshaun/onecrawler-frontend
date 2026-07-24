@@ -177,4 +177,16 @@
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--gradient-to)));
   }
+
+  /* Molten — the brand gradient (copper -> rose). Reserved for brand moments
+     (logo marks, primary CTAs, identity icon tiles, hero glows) rather than
+     every primary-colored control, so badges/switches/borders/focus rings
+     stay flat copper for legibility. */
+  .bg-gradient-copper {
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--gradient-to)));
+  }
+
+  .bg-gradient-copper-soft {
+    background-image: linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--gradient-to) / 0.12));
+  }
 }

@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#ec5b13"/>
+  <defs>
+    <linearGradient id="molten" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ec5b13"/>
+      <stop offset="1" stop-color="#dd2c4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#molten)"/>
   <!-- Lucide "radar" icon, matching the in-app logo badge -->
   <g transform="translate(8,8) scale(0.6667)" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M19.07 4.93A10 10 0 0 0 6.99 3.34" />

@@ -86,7 +86,7 @@ function PublicNav() {
     <header className="sticky top-0 z-30 border-b border-border bg-background">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-copper text-primary-foreground">
             <Radar className="h-4 w-4" />
           </div>
           <span className="text-sm font-semibold tracking-tight text-foreground">OneCrawler</span>
@@ -422,7 +422,7 @@ export default function LandingPage() {
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, title, description }) => (
               <div key={title} className="border border-border bg-card rounded-xl p-5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-copper-soft text-primary">
                   <Icon className="h-4.5 w-4.5" />
                 </div>
                 <h3 className="mt-4 text-sm font-semibold text-foreground">{title}</h3>
@@ -475,7 +475,7 @@ export default function LandingPage() {
       <footer className="border-t border-border py-10">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-4 text-sm text-muted-foreground sm:flex-row lg:px-8">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-copper text-primary-foreground">
               <Radar className="h-3.5 w-3.5" />
             </div>
             <span className="font-medium text-foreground">OneCrawler</span>

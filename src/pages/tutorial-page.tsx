@@ -228,7 +228,7 @@ function Section({ id, icon: Icon, title, children }: { id: string; icon: typeof
   return (
     <section id={id} className="scroll-mt-20">
       <div className="mb-4 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
           <Icon className="h-4 w-4" />
         </div>
         <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
@@ -242,7 +242,7 @@ function ConceptCard({ icon: Icon, name, tag, body }: { icon: typeof Rocket; nam
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
           <Icon className="h-4 w-4" />
         </div>
         <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{tag}</span>
@@ -265,11 +265,11 @@ export default function TutorialPage() {
       <div className="relative overflow-hidden rounded-xl border border-border bg-card p-6">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.16),transparent_70%)]"
+          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.18),hsl(var(--gradient-to)/0.10)_55%,transparent_75%)]"
         />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
               <Rocket className="h-6 w-6" />
             </div>
             <div>
@@ -349,7 +349,7 @@ export default function TutorialPage() {
               {PIPELINE.map((stage, i) => (
                 <div key={stage.title} className="relative rounded-xl border border-border bg-card p-4">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
                       <stage.icon className="h-4 w-4" />
                     </div>
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -413,7 +413,7 @@ export default function TutorialPage() {
                 {FIRST_CRAWL.map((step, i) => (
                   <div key={step.title} className="flex gap-3">
                     <div className="flex flex-col items-center">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-copper text-xs font-semibold text-primary-foreground">
                         {i + 1}
                       </div>
                       {i < FIRST_CRAWL.length - 1 && <div className="mt-1 h-full w-px flex-1 bg-border" />}
@@ -480,7 +480,7 @@ export default function TutorialPage() {
                 to={c.to}
                 className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-colors duration-150 hover:border-primary/40 hover:bg-accent"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
                   <c.icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
