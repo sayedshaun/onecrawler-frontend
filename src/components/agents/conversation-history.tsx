@@ -1,6 +1,5 @@
-import { MessageSquarePlus, MessagesSquare } from "lucide-react";
+import { MessagesSquare } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { AgentConversationSummary } from "@/lib/types";
@@ -9,7 +8,6 @@ interface ConversationHistoryProps {
   conversations: AgentConversationSummary[];
   activeId: string | null;
   onSelect: (id: string) => void;
-  onNew: () => void;
   loading?: boolean;
 }
 
@@ -62,22 +60,12 @@ function groupByRecency(conversations: AgentConversationSummary[]) {
 
 // No delete action here — onecrawler-agents-backend only exposes GET /chats
 // and GET /chats/{id}, with no endpoint to remove a conversation.
-export function ConversationHistory({ conversations, activeId, onSelect, onNew, loading }: ConversationHistoryProps) {
+export function ConversationHistory({ conversations, activeId, onSelect, loading }: ConversationHistoryProps) {
   const groups = groupByRecency(conversations);
   const showSkeleton = loading && conversations.length === 0;
 
   return (
     <div className="flex h-full flex-col gap-3">
-      <Button
-        variant="outline"
-        size="sm"
-        className="justify-start gap-2 border-dashed hover:border-primary/50 hover:text-primary"
-        onClick={onNew}
-      >
-        <MessageSquarePlus className="h-4 w-4" />
-        New chat
-      </Button>
-
       <ScrollArea className="-mx-1 flex-1 px-1">
         {showSkeleton ? (
           <div className="animate-pulse">

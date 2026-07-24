@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 
+import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/topbar";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { transitionPage } from "@/lib/motion";
@@ -25,31 +26,34 @@ export function AppShell({ children }: { children: ReactNode }) {
   const enterOffset = fullBleed ? 0 : 6;
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
-      <TopBar />
-      {/* overflow-x-hidden is load-bearing, not decorative: with only
-          overflow-y set, the browser forces overflow-x to compute as "auto"
-          too (per spec, a non-visible axis makes the other axis non-visible
-          as well) — which turns full-bleed pages that cancel this padding via
-          negative margins (e.g. the Agent page) into horizontally scrollable
-          content that can visibly shift during the page-enter transition. */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 lg:px-8 lg:py-8">
-        {/*
-          No AnimatePresence/exit animation here on purpose: an exit animation makes
-          AnimatePresence delay mounting the next page until the old one finishes
-          leaving, which added real navigation latency (compounding on rapid clicks).
-          The old page unmounts instantly; only the new one animates in.
-        */}
-        <motion.div
-          key={location.pathname}
-          initial={animatePages ? { opacity: 0, y: enterOffset } : false}
-          animate={animatePages ? { opacity: 1, y: 0 } : undefined}
-          transition={transitionPage}
-          className="mx-auto min-h-full w-full max-w-screen-2xl"
-        >
-          {children}
-        </motion.div>
-      </main>
+    <div className="flex h-dvh overflow-hidden bg-background">
+      <Sidebar />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <TopBar />
+        {/* overflow-x-hidden is load-bearing, not decorative: with only
+            overflow-y set, the browser forces overflow-x to compute as "auto"
+            too (per spec, a non-visible axis makes the other axis non-visible
+            as well) — which turns full-bleed pages that cancel this padding via
+            negative margins (e.g. the Agent page) into horizontally scrollable
+            content that can visibly shift during the page-enter transition. */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 lg:px-8 lg:py-8">
+          {/*
+            No AnimatePresence/exit animation here on purpose: an exit animation makes
+            AnimatePresence delay mounting the next page until the old one finishes
+            leaving, which added real navigation latency (compounding on rapid clicks).
+            The old page unmounts instantly; only the new one animates in.
+          */}
+          <motion.div
+            key={location.pathname}
+            initial={animatePages ? { opacity: 0, y: enterOffset } : false}
+            animate={animatePages ? { opacity: 1, y: 0 } : undefined}
+            transition={transitionPage}
+            className="mx-auto min-h-full w-full max-w-screen-2xl"
+          >
+            {children}
+          </motion.div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Bot,
   Database,
-  History,
   ListChecks,
   Network,
   Settings,
@@ -14,10 +13,8 @@ import { toast } from "sonner";
 
 import { ChatComposer } from "@/components/agents/chat-composer";
 import { ChatMessage } from "@/components/agents/chat-message";
-import { ConversationHistory } from "@/components/agents/conversation-history";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { usePolledResource } from "@/hooks/use-polled-resource";
 import {
   AgentStreamError,
@@ -28,7 +25,8 @@ import {
 } from "@/lib/agents-api";
 import { ApiError } from "@/lib/api";
 import { cn, formatRelativeTime, generateId } from "@/lib/utils";
-import type { AgentConversationSummary, AgentMessage, AgentTraceStep } from "@/lib/types";
+import { useAgentChatStore } from "@/store/agent-chat-store";
+import type { AgentMessage, AgentTraceStep } from "@/lib/types";
 
 // Appends a token delta to the message's trailing text part, or starts a new
 // one if the last part is a trace step (a tool call/result landed since the
@@ -82,14 +80,15 @@ const SUGGESTIONS = [
 ];
 
 export default function AgentsPage() {
-  const [conversations, setConversations] = useState<AgentConversationSummary[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const conversations = useAgentChatStore((s) => s.conversations);
+  const setConversations = useAgentChatStore((s) => s.setConversations);
+  const activeId = useAgentChatStore((s) => s.activeId);
+  const setActiveId = useAgentChatStore((s) => s.setActiveId);
+  const setConversationsLoading = useAgentChatStore((s) => s.setLoading);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [loadingConversation, setLoadingConversation] = useState(false);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [conversationsLoading, setConversationsLoading] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
@@ -102,14 +101,26 @@ export default function AgentsPage() {
   const isConfigured = settings?.llm.hasKey ?? false;
 
   // Seeds the conversation list from the backend on first mount so the
-  // sidebar is populated, but always opens on a fresh, unsaved chat rather
-  // than auto-loading the most recent conversation — its history only tracks
+  // sidebar is populated, and opens on a fresh, unsaved chat rather than
+  // auto-loading the most recent conversation — its history only tracks
   // conversations that have received at least one message, and this one
-  // becomes real the moment the first message is sent.
+  // becomes real the moment the first message is sent. The one exception:
+  // the Sidebar's history is reachable from every page now, and clicking a
+  // conversation there while this page isn't mounted stashes its id as
+  // `pendingSelectId` instead of calling `selectConversation` directly —
+  // consume that here so navigating in from elsewhere opens the right chat.
   useEffect(() => {
-    const id = generateId();
-    setActiveId(id);
-    activeIdRef.current = id;
+    const pendingId = useAgentChatStore.getState().pendingSelectId;
+    if (pendingId) {
+      useAgentChatStore.getState().setPendingSelectId(null);
+      setActiveId(pendingId);
+      activeIdRef.current = pendingId;
+      loadConversation(pendingId);
+    } else {
+      const id = generateId();
+      setActiveId(id);
+      activeIdRef.current = id;
+    }
 
     listAgentConversations()
       .then(setConversations)
@@ -130,6 +141,14 @@ export default function AgentsPage() {
   useEffect(() => {
     return () => abortRef.current?.abort();
   }, []);
+
+  // Lets the global Sidebar drive selection while this page owns the actual
+  // conversation data and streaming logic — see agent-chat-store.ts.
+  useEffect(() => {
+    useAgentChatStore.getState().setSelectHandler(selectConversation);
+    return () => useAgentChatStore.getState().setSelectHandler(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
 
   function loadConversation(id: string) {
     setLoadingConversation(true);
@@ -158,7 +177,6 @@ export default function AgentsPage() {
     activeIdRef.current = id;
     setMessages([]);
     historicalIdsRef.current = new Set();
-    setHistoryOpen(false);
     loadConversation(id);
   }
 
@@ -171,7 +189,6 @@ export default function AgentsPage() {
     setMessages([]);
     historicalIdsRef.current = new Set();
     setLoadingConversation(false);
-    setHistoryOpen(false);
   }
 
   function send(text: string) {
@@ -270,36 +287,13 @@ export default function AgentsPage() {
 
   return (
     <div className="-my-6 flex h-[calc(100dvh-3.5rem)] lg:-my-8">
-      <aside className="hidden w-64 shrink-0 border-r border-border p-3 md:block">
-        <ConversationHistory conversations={conversations} activeId={activeId} onSelect={selectConversation} onNew={handleNewChat} loading={conversationsLoading} />
-      </aside>
-
-      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
-        <SheetContent side="left" className="w-3/4 max-w-xs p-4">
-          <SheetTitle className="sr-only">Chat history</SheetTitle>
-          <ConversationHistory
-            conversations={conversations}
-            activeId={activeId}
-            onSelect={selectConversation}
-            onNew={handleNewChat}
-            loading={conversationsLoading}
-          />
-        </SheetContent>
-      </Sheet>
-
+      {/* At lg+ this history lives in the persistent Sidebar; below that, the
+          top bar's logo opens the same content (nav + this history + account)
+          in a Sheet — see topbar.tsx / sidebar-content.tsx — so this page
+          doesn't need its own separate history entry point anymore. */}
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0 md:hidden"
-            onClick={() => setHistoryOpen(true)}
-            aria-label="Open chat history"
-          >
-            <History className="h-4 w-4" />
-          </Button>
-
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <span className="relative flex h-2 w-2 shrink-0">
               {isStreaming && (
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
@@ -326,7 +320,7 @@ export default function AgentsPage() {
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto shrink-0"
+            className="shrink-0"
             onClick={handleNewChat}
             aria-label="New chat"
           >
@@ -346,12 +340,12 @@ export default function AgentsPage() {
                 under reduce-motion without extra handling. */}
             <div
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-[38%] h-[32rem] w-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.14),transparent_70%)]"
+              className="pointer-events-none absolute left-1/2 top-[38%] h-[32rem] w-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.16),hsl(var(--gradient-to)/0.09)_55%,transparent_75%)]"
             />
 
             {!isConfigured ? (
               <div className="relative flex flex-col items-center gap-4 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
                   <Bot className="h-7 w-7" />
                 </div>
                 <div>
@@ -370,7 +364,7 @@ export default function AgentsPage() {
             ) : (
               <div className="relative flex w-full max-w-2xl flex-col items-center gap-6">
                 <div className="flex flex-col items-center gap-3 text-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-copper-soft text-primary ring-1 ring-primary/20">
                     <Bot className="h-7 w-7" />
                   </div>
                   <h2 className="text-2xl font-semibold tracking-tight">
@@ -391,7 +385,7 @@ export default function AgentsPage() {
                       onClick={() => send(s.prompt)}
                       className="group flex items-start gap-3 rounded-2xl border border-border bg-card/50 p-3 text-left transition-colors duration-150 ease-out hover:border-primary/40 hover:bg-accent"
                     >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-copper-soft text-primary transition-[filter] duration-150 ease-out group-hover:brightness-125">
                         <s.icon className="h-4 w-4" />
                       </span>
                       <span className="min-w-0">
